@@ -12,32 +12,6 @@ enum Day: string
     case SATURDAY = 'saturday';
     case SUNDAY = 'sunday';
 
-    public function label(): string
-    {
-        return match ($this) {
-            self::MONDAY => 'Senin',
-            self::TUESDAY => 'Selasa',
-            self::WEDNESDAY => 'Rabu',
-            self::THURSDAY => 'Kamis',
-            self::FRIDAY => 'Jumat',
-            self::SATURDAY => 'Sabtu',
-            self::SUNDAY => 'Minggu',
-        };
-    }
-
-    public function shortLabel(): string
-    {
-        return match ($this) {
-            self::MONDAY => 'Sen',
-            self::TUESDAY => 'Sel',
-            self::WEDNESDAY => 'Rab',
-            self::THURSDAY => 'Kam',
-            self::FRIDAY => 'Jum',
-            self::SATURDAY => 'Sab',
-            self::SUNDAY => 'Min',
-        };
-    }
-
     public static function values(): array
     {
         return array_column(self::cases(), 'value');
@@ -53,5 +27,18 @@ enum Day: string
             self::FRIDAY,
             self::SATURDAY,
         ];
+    }
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::MONDAY => 'Senin',
+            self::TUESDAY => 'Selasa',
+            self::WEDNESDAY => 'Rabu',
+            self::THURSDAY => 'Kamis',
+            self::FRIDAY => 'Jumat',
+            self::SATURDAY => 'Sabtu',
+            self::SUNDAY => 'Minggu',
+        };
     }
 }

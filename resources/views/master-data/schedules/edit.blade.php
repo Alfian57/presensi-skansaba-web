@@ -1,6 +1,7 @@
 @extends('layouts.main')
 
 
+
 @section('content')
     @include('components.breadcrumb')
 
@@ -10,123 +11,45 @@
         @method('put')
         @csrf
         <div class="row">
-            <div class="mb-3 mt-3 col-lg-6">
-                <label for="training_year" class="form-label">Tahun Pelajaran</label>
-                <input type="text" class="form-control @error('training_year') is-invalid @enderror" name="training_year"
-                    id="training_year" placeholder="2022/2023" value="{{ old('training_year', $schedule->training_year) }}"
-                    required autofocus>
-                @error('training_year')
+            <div class="mb-3">
+                <label for="academic_year" class="form-label">Tahun Pelajaran</label>
+                <input type="text" class="form-control @error('academic_year') is-invalid @enderror" 
+                    name="academic_year" id="academic_year" 
+                    placeholder="2022/2023" value="{{ old('academic_year', $schedule->academic_year) }}" required autofocus>
+                @error('academic_year')
                     <div class="invalid-feedback">
                         {{ $message }}
                     </div>
                 @enderror
             </div>
 
-            <div class="mb-3 mt-3 col-lg-6">
-                <label for="class_year" class="form-label">Semester</label>
-                <select class="form-select @error('teacher_id') is-invalid @enderror" name="class_year" id="class_year"
-                    required>
-                    @if (old('class_year', $schedule->class_year) == 'ganjil')
-                        <option value="ganjil" selected>Ganjil</option>
-                    @else
-                        <option value="ganjil">Ganjil</option>
-                    @endif
-
-                    @if (old('class_year', $schedule->class_year) == 'genap')
-                        <option value="genap" selected>Genap</option>
-                    @else
-                        <option value="genap">Genap</option>
-                    @endif
+            <div class="mb-3">
+                <label for="semester" class="form-label">Semester</label>
+                <select class="form-select @error('semester') is-invalid @enderror" name="semester" id="semester" required>
+                    <option value="" disabled>Pilih Semester</option>
+                    <option value="1" {{ old('semester', $schedule->semester) == '1' ? 'selected' : '' }}>Ganjil</option>
+                    <option value="2" {{ old('semester', $schedule->semester) == '2' ? 'selected' : '' }}>Genap</option>
                 </select>
-                @error('class_year')
+                @error('semester')
                     <div class="invalid-feedback">
                         {{ $message }}
                     </div>
                 @enderror
             </div>
 
-            <div class="mb-3 mt-3 col-lg-6">
-                <label for="teacher_id" class="form-label">Guru Mata Pelajaran</label>
-                <select class="form-select @error('teacher_id') is-invalid @enderror" name="teacher_id" id="teacher_id"
-                    required>
-                    @foreach ($teachers as $teacher)
-                        @if ($teacher->id == old('teacher_id', $schedule->teacher_id))
-                            <option value="{{ $teacher->id }}" selected>{{ $teacher->name }}</option>
-                        @else
-                            <option value="{{ $teacher->id }}">{{ $teacher->name }}</option>
-                        @endif
-                    @endforeach
-                </select>
-                @if ($teachers->isEmpty())
-                    <p class="text-danger">Data Guru Masih Kosong</p>
-                @endif
-                @error('teacher_id')
-                    <div class="invalid-feedback">
-                        {{ $message }}
-                    </div>
-                @enderror
-            </div>
-
-            <div class="mb-3 mt-3 col-lg-6">
-                <label for="subject_id" class="form-label">Mata Pelajaran</label>
-                <select class="form-select @error('subject_id') is-invalid @enderror" name="subject_id" id="subject_id"
-                    required>
-                    @foreach ($subjects as $subject)
-                        @if ($subject->id == old('subject_id', $schedule->subject_id))
-                            <option value="{{ $subject->id }}" selected>{{ $subject->name }}</option>
-                        @else
-                            <option value="{{ $subject->id }}">{{ $subject->name }}</option>
-                        @endif
-                    @endforeach
-                </select>
-                @if ($subjects->isEmpty())
-                    <p class="text-danger">Data Mata Pelajaran Masih Kosong</p>
-                @endif
-                @error('subject_id')
-                    <div class="invalid-feedback">
-                        {{ $message }}
-                    </div>
-                @enderror
-            </div>
-
-            <div class="mb-3 mt-3 col-lg-6">
-                <label class="mb-2">Hari</label>
-                @foreach ($days as $day)
-                    <div class="form-check">
-                        @if (old('day', $schedule->day) == strtolower($day))
-                            <input class="form-check-input" value="{{ strtolower($day) }}" type="radio" name="day"
-                                id="{{ $day }}" checked>
-                        @else
-                            <input class="form-check-input" value="{{ strtolower($day) }}" type="radio" name="day"
-                                id="{{ $day }}">
-                        @endif
-
-                        <label class="form-check-label" for="{{ $day }}">
-                            {{ $day }}
-                        </label>
-                    </div>
-                @endforeach
-                @error('day')
-                    <div class="text-danger">
-                        {{ $message }}
-                    </div>
-                @enderror
-            </div>
-
-            <div class="mb-3 mt-3 col-lg-6">
+            <div class="mb-3">
                 <label for="classroom_id" class="form-label">Kelas</label>
-                <select class="form-select  @error('classroom_id') is-invalid @enderror" name="classroom_id" id="classroom_id"
-                    required>
+                <select class="form-select @error('classroom_id') is-invalid @enderror" name="classroom_id"
+                    id="classroom_id" required>
+                    <option value="" disabled>Pilih Kelas</option>
                     @foreach ($classrooms as $classroom)
-                        @if ($classroom->id == old('classroom_id', $schedule->classroom_id))
-                            <option value="{{ $classroom->id }}" selected>{{ $classroom->name }}</option>
-                        @else
-                            <option value="{{ $classroom->id }}\">{{ $classroom->name }}</option>
-                        @endif
+                        <option value="{{ $classroom->id }}" {{ old('classroom_id', $schedule->classroom_id) == $classroom->id ? 'selected' : '' }}>
+                            {{ $classroom->name }}
+                        </option>
                     @endforeach
                 </select>
                 @if ($classrooms->isEmpty())
-                    <p class="text-danger">Data Kelas Masih Kosong</p>
+                    <p class="text-danger small mt-1">Data Kelas Masih Kosong</p>
                 @endif
                 @error('classroom_id')
                     <div class="invalid-feedback">
@@ -135,22 +58,95 @@
                 @enderror
             </div>
 
-            <div class="mb-3 mt-3 col-lg-6">
-                <label for="time_start" class="form-label">Waktu Mulai</label>
-                <input type="time" class="form-control @error('time_start') is-invalid @enderror" name="time_start"
-                    id="time_start" value="{{ old('time_start', $schedule->time_start) }}" required>
-                @error('time_start')
+            <div class="mb-3">
+                <label for="subject_id" class="form-label">Mata Pelajaran</label>
+                <select class="form-select @error('subject_id') is-invalid @enderror" name="subject_id" id="subject_id"
+                    required>
+                    <option value="" disabled>Pilih Mata Pelajaran</option>
+                    @foreach ($subjects as $subject)
+                        <option value="{{ $subject->id }}" {{ old('subject_id', $schedule->subject_id) == $subject->id ? 'selected' : '' }}>
+                            {{ $subject->name }}
+                        </option>
+                    @endforeach
+                </select>
+                @if ($subjects->isEmpty())
+                    <p class="text-danger small mt-1">Data Mata Pelajaran Masih Kosong</p>
+                @endif
+                @error('subject_id')
                     <div class="invalid-feedback">
                         {{ $message }}
                     </div>
                 @enderror
             </div>
 
-            <div class="mb-3 mt-3 col-lg-6">
-                <label for="time_finish" class="form-label">Waktu Selesai</label>
-                <input type="time" class="form-control @error('time_finish') is-invalid @enderror" name="time_finish"
-                    id="time_finish" value="{{ old('time_finish', $schedule->time_finish) }}" required>
-                @error('time_finish')
+            <div class="mb-3">
+                <label for="teacher_id" class="form-label">Guru Mata Pelajaran</label>
+                <select class="form-select @error('teacher_id') is-invalid @enderror" name="teacher_id" id="teacher_id"
+                    required>
+                    <option value="" disabled>Pilih Guru</option>
+                    @foreach ($teachers as $teacher)
+                        <option value="{{ $teacher->id }}" {{ old('teacher_id', $schedule->teacher_id) == $teacher->id ? 'selected' : '' }}>
+                            {{ $teacher->name }}
+                        </option>
+                    @endforeach
+                </select>
+                @if ($teachers->isEmpty())
+                    <p class="text-danger small mt-1">Data Guru Masih Kosong</p>
+                @endif
+                @error('teacher_id')
+                    <div class="invalid-feedback">
+                        {{ $message }}
+                    </div>
+                @enderror
+            </div>
+
+            <div class="mb-3">
+                <label class="mb-2">Hari</label>
+                <div class="d-flex flex-wrap">
+                    @foreach ($days as $en => $id_day)
+                        <div class="form-check ms-3">
+                            <input class="form-check-input" value="{{ $en }}" type="radio" name="day" 
+                                id="day_{{ $en }}" {{ old('day', $schedule->day) == $en ? 'checked' : '' }}>
+                            <label class="form-check-label" for="day_{{ $en }}">
+                                {{ $id_day }}
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+                @error('day')
+                    <div class="text-danger small mt-1">
+                        {{ $message }}
+                    </div>
+                @enderror
+            </div>
+
+            <div class="mb-3">
+                <label for="start_time" class="form-label">Waktu Mulai</label>
+                <input type="time" class="form-control @error('start_time') is-invalid @enderror" name="start_time"
+                    id="start_time" value="{{ old('start_time', $start_time) }}" required>
+                @error('start_time')
+                    <div class="invalid-feedback">
+                        {{ $message }}
+                    </div>
+                @enderror
+            </div>
+
+            <div class="mb-3">
+                <label for="end_time" class="form-label">Waktu Selesai</label>
+                <input type="time" class="form-control @error('end_time') is-invalid @enderror" name="end_time"
+                    id="end_time" value="{{ old('end_time', $end_time) }}" required>
+                @error('end_time')
+                    <div class="invalid-feedback">
+                        {{ $message }}
+                    </div>
+                @enderror
+            </div>
+
+            <div class="mb-3">
+                <label for="room" class="form-label">Ruang</label>
+                <input type="text" class="form-control @error('room') is-invalid @enderror" name="room" id="room"
+                    placeholder="Contoh: Lab Komputer" value="{{ old('room', $schedule->room) }}" required maxlength="100">
+                @error('room')
                     <div class="invalid-feedback">
                         {{ $message }}
                     </div>

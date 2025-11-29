@@ -82,8 +82,12 @@
             <label for="gender" class="form-label">Jenis Kelamin</label>
             <select class="form-select @error('gender') is-invalid @enderror" name="gender" id="gender" required>
                 <option value="">Pilih Jenis Kelamin</option>
-                <option value="male" {{ old('gender', $teacher->gender) == 'male' ? 'selected' : '' }}>Laki-laki</option>
-                <option value="female" {{ old('gender', $teacher->gender) == 'female' ? 'selected' : '' }}>Perempuan</option>
+                <option value="male" @selected(old('gender', $teacher->gender) == App\Enums\Gender::MALE->value)>
+                    Laki-laki
+                </option>
+                <option value="female" @selected(old('gender', $teacher->gender) == App\Enums\Gender::FEMALE->value)>
+                    Perempuan
+                </option>
             </select>
             @error('gender')
                 <div class="invalid-feedback">

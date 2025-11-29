@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Day;
 use App\Http\Requests\Schedule\StoreScheduleRequest;
 use App\Http\Requests\Schedule\UpdateScheduleRequest;
 use App\Models\Classroom;
@@ -9,6 +10,7 @@ use App\Models\Schedule;
 use App\Models\Subject;
 use App\Models\Teacher;
 use App\Services\ScheduleService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -55,18 +57,7 @@ class ScheduleController extends Controller
             ->orderBy('start_time')
             ->get();
 
-        $classrooms = Classroom::orderBy('grade_level')
-            ->orderBy('major')
-            ->orderBy('class_number')
-            ->get();
-
-        $teachers = Teacher::with(['user'])
-            ->whereHas('user')
-            ->get();
-
-        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-
-        return view('master-data.schedules.index', compact('schedules', 'classrooms', 'teachers', 'days'));
+        return view('master-data.schedules.index', compact('schedules'));
     }
 
     /**
@@ -85,7 +76,10 @@ class ScheduleController extends Controller
             ->whereHas('user')
             ->get();
 
-        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        $days = [];
+        foreach (Day::schoolDays() as $day) {
+            $days[$day->value] = $day->label();
+        }
 
         return view('master-data.schedules.create', compact('classrooms', 'subjects', 'teachers', 'days'));
     }
@@ -96,13 +90,13 @@ class ScheduleController extends Controller
     public function store(StoreScheduleRequest $request)
     {
         try {
-            $schedule = $this->scheduleService->create($request->validated());
+            $this->scheduleService->create($request->validated());
 
             Alert::success('Berhasil', 'Jadwal berhasil ditambahkan.');
 
             return redirect()->route('dashboard.schedules.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back()->withInput();
         }
@@ -136,9 +130,15 @@ class ScheduleController extends Controller
             ->whereHas('user')
             ->get();
 
-        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        $days = [];
+        foreach (Day::schoolDays() as $day) {
+            $days[$day->value] = $day->label();
+        }
 
-        return view('master-data.schedules.edit', compact('schedule', 'classrooms', 'subjects', 'teachers', 'days'));
+        $start_time = $schedule->start_time ? Carbon::parse($schedule->start_time)->format('H:i') : null;
+        $end_time = $schedule->end_time ? Carbon::parse($schedule->end_time)->format('H:i') : null;
+
+        return view('master-data.schedules.edit', compact('schedule', 'classrooms', 'subjects', 'teachers', 'days', 'start_time', 'end_time'));
     }
 
     /**
@@ -153,7 +153,7 @@ class ScheduleController extends Controller
 
             return redirect()->route('dashboard.schedules.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back()->withInput();
         }
@@ -171,7 +171,7 @@ class ScheduleController extends Controller
 
             return redirect()->route('dashboard.schedules.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back();
         }

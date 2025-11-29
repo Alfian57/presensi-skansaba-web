@@ -17,7 +17,6 @@ return new class() extends Migration
             $table->text('reason')->nullable();
             $table->string('proof_file')->nullable();
             $table->timestamps();
-            $table->softDeletes();
 
             $table->index(['student_id', 'date']);
             $table->index(['subject_id', 'date']);

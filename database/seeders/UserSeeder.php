@@ -26,11 +26,10 @@ class UserSeeder extends Seeder
             'email' => 'admin@skansaba.sch.id',
             'username' => 'admin',
             'password' => bcrypt('password'),
-            'email_verified_at' => now(),
             'is_active' => true,
         ]);
         $admin->assignRole('admin');
-        $this->command->info("✓ Admin created: {$admin->email}");
+        $this->command->info("✓ Admin created");
 
         // Create Teachers with Teacher records
         $this->command->info('Creating teachers...');
@@ -50,21 +49,20 @@ class UserSeeder extends Seeder
 
             $user = User::create([
                 'name' => $teacherData['name'],
-                'email' => strtolower($username).'@skansaba.sch.id',
+                'email' => strtolower($username) . '@skansaba.sch.id',
                 'username' => $username,
                 'password' => bcrypt('password'),
-                'email_verified_at' => now(),
                 'is_active' => true,
             ]);
             $user->assignRole('teacher');
 
             Teacher::create([
                 'user_id' => $user->id,
-                'employee_number' => $teacherData['nip'],
+                'nip' => $teacherData['nip'],
+                'date_of_birth' => now()->subYears(rand(30, 55))->subDays(rand(1, 365)),
             ]);
-
-            $this->command->info("✓ Teacher created: {$user->email} (NIP: {$teacherData['nip']})");
         }
+        $this->command->info("✓ Teacher created");
 
         // Create Students with Student records
         $this->command->info('Creating students...');
@@ -74,20 +72,20 @@ class UserSeeder extends Seeder
         foreach ($classrooms as $classroom) {
             $this->command->info("  Creating students for {$classroom->name}...");
 
-            for ($i = 1; $i <= 30; $i++) {
+            for ($i = 1; $i <= 10; $i++) {
                 $nisn = str_pad($studentNumber, 10, '0', STR_PAD_LEFT);
+                $nis = str_pad($studentNumber, 5, '0', STR_PAD_LEFT);
                 $firstName = ['Ahmad', 'Budi', 'Citra', 'Desi', 'Eko', 'Fitri', 'Gilang', 'Hana', 'Indra', 'Joko'][rand(0, 9)];
                 $lastName = ['Saputra', 'Wijaya', 'Pratama', 'Santoso', 'Kusuma', 'Dewi', 'Putri', 'Ramadhan', 'Setiawan', 'Wati'][rand(0, 9)];
                 $name = "$firstName $lastName";
-                $username = strtolower($firstName.$lastName.$studentNumber);
-                $gender = ($i % 2 == 0) ? Gender::MALE : Gender::FEMALE;
+                $username = strtolower($firstName . $lastName . $studentNumber);
+                $gender = ($i % 2 == 0) ? Gender::MALE->value : Gender::FEMALE->value;
 
                 $user = User::create([
                     'name' => $name,
-                    'email' => $username.'@student.skansaba.sch.id',
+                    'email' => $username . '@student.skansaba.sch.id',
                     'username' => $username,
                     'password' => bcrypt('password'),
-                    'email_verified_at' => now(),
                     'is_active' => true,
                 ]);
                 $user->assignRole('student');
@@ -96,22 +94,20 @@ class UserSeeder extends Seeder
                     'user_id' => $user->id,
                     'classroom_id' => $classroom->id,
                     'nisn' => $nisn,
-                    'nis' => 'NIS'.$nisn,
+                    'nis' => $nis,
                     'gender' => $gender,
                     'date_of_birth' => now()->subYears(rand(16, 18))->subDays(rand(1, 365)),
-                    'phone' => '08'.rand(1000000000, 9999999999),
-                    'address' => 'Jl. Contoh No. '.rand(1, 100).', Jakarta',
+                    'phone' => '08' . rand(1000000000, 9999999999),
+                    'address' => 'Jl. Contoh No. ' . rand(1, 100) . ', Jakarta',
                     'entry_year' => now()->year - (($classroom->grade_level - 10)),
-                    'parent_name' => 'Orang Tua '.$name,
-                    'parent_phone' => '08'.rand(1000000000, 9999999999),
+                    'parent_name' => 'Orang Tua ' . $name,
+                    'parent_phone' => '08' . rand(1000000000, 9999999999),
                 ]);
 
                 $studentNumber++;
             }
-
-            $this->command->info("  ✓ Created 30 students for {$classroom->name}");
         }
 
-        $this->command->info('✓ Total students created: '.($studentNumber - 1));
+        $this->command->info('✓ Total students created: ' . ($studentNumber - 1));
     }
 }

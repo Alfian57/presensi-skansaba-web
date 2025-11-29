@@ -130,7 +130,7 @@
                             <p class="ms-3">Data Umum</p>
                             <span class="caret"></span>
                         </a>
-                        <div class="collapse {{ Request::routeIs(['dashboard.classrooms.*', 'dashboard.subjects.*', 'dashboard.homerooms.*']) ? 'show' : '' }}"
+                        <div class="collapse {{ Request::routeIs(['dashboard.classrooms.*', 'dashboard.subjects.*', 'dashboard.homeroom-teachers.*']) ? 'show' : '' }}"
                             id="dataUmum">
                             <ul class="nav nav-collapse">
                                 <li class="{{ Request::routeIs('dashboard.classrooms.*') ? 'active' : '' }}">
@@ -145,8 +145,8 @@
                                         <span class="sub-item">Mata Pelajaran</span>
                                     </a>
                                 </li>
-                                <li class="{{ Request::routeIs('dashboard.homerooms.*') ? 'active' : '' }}">
-                                    <a href="{{ route('dashboard.homerooms.index') }}">
+                                <li class="{{ Request::routeIs('dashboard.homeroom-teachers.*') ? 'active' : '' }}">
+                                    <a href="{{ route('dashboard.homeroom-teachers.index') }}">
                                         <i class="fas fa-chalkboard-teacher"></i>
                                         <span class="sub-item">Wali Kelas</span>
                                     </a>

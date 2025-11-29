@@ -38,7 +38,7 @@
                             </tr>
                             <tr>
                                 <th>Jenis Kelamin</th>
-                                <td>: {{ $teacher->gender == 'male' ? 'Laki-laki' : ($teacher->gender == 'female' ? 'Perempuan' : '-') }}</td>
+                                <td>: {{ $teacher->gender == App\Enums\Gender::MALE->value ? "Laki-laki" : "Perempuan" }}</td>
                             </tr>
                         </table>
                     </div>

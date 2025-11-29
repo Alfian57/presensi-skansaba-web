@@ -12,14 +12,18 @@ class ClassroomService
      */
     public function create(array $data): Classroom
     {
-        return Classroom::create([
-            'name' => $data['name'],
-            'slug' => $data['slug'] ?? Str::slug($data['name']),
+        $attributes = [
+            'name' => $data['grade_level'] . ' ' . ($data['major'] ?? '') . ' ' . $data['class_number'],
             'grade_level' => $data['grade_level'],
             'major' => $data['major'] ?? null,
             'class_number' => $data['class_number'],
-            'academic_year' => $data['academic_year'] ?? $this->getCurrentAcademicYear(),
-        ]);
+        ];
+
+        if (array_key_exists('is_active', $data)) {
+            $attributes['is_active'] = $data['is_active'];
+        }
+
+        return Classroom::create($attributes);
     }
 
     /**
@@ -27,14 +31,18 @@ class ClassroomService
      */
     public function update(Classroom $classroom, array $data): Classroom
     {
-        $classroom->update([
-            'name' => $data['name'] ?? $classroom->name,
-            'slug' => isset($data['name']) ? Str::slug($data['name']) : $classroom->slug,
+        $attributes = [
             'grade_level' => $data['grade_level'] ?? $classroom->grade_level,
             'major' => $data['major'] ?? $classroom->major,
             'class_number' => $data['class_number'] ?? $classroom->class_number,
-            'academic_year' => $data['academic_year'] ?? $classroom->academic_year,
-        ]);
+            'is_active' => $data['is_active'] ?? $classroom->is_active,
+        ];
+        if (!array_key_exists('is_active', $data)) {
+            $attributes['is_active'] = false;
+        }
+        $attributes['name'] = $attributes['grade_level'] . ' ' . $attributes['major'] . ' ' . $attributes['class_number'];
+
+        $classroom->update($attributes);
 
         return $classroom->fresh();
     }
@@ -81,9 +89,9 @@ class ClassroomService
 
         // Academic year starts in July (month 7)
         if ($currentMonth >= 7) {
-            return $currentYear.'/'.($currentYear + 1);
+            return $currentYear . '/' . ($currentYear + 1);
         } else {
-            return ($currentYear - 1).'/'.$currentYear;
+            return ($currentYear - 1) . '/' . $currentYear;
         }
     }
 
@@ -92,15 +100,46 @@ class ClassroomService
      */
     public function getStatistics(Classroom $classroom): array
     {
-        $totalStudents = $classroom->students()->count();
-        $maleStudents = $classroom->students()->where('gender', 'male')->count();
-        $femaleStudents = $classroom->students()->where('gender', 'female')->count();
+        // Get all attendance records for students of this classroom for today
+        $studentIds = $classroom->students()->pluck('id')->toArray();
+        if (empty($studentIds)) {
+            return [
+                'present' => 0,
+                'late' => 0,
+                'absent' => 0,
+                'sick' => 0,
+            ];
+        }
+
+        $today = now()->toDateString();
+
+        // Collect statuses and count occurrences (case-insensitive)
+        $statusCounts = \App\Models\Attendance::whereIn('student_id', $studentIds)
+            ->whereDate('created_at', $today)
+            ->get()
+            ->pluck('status')
+            ->map(fn($s) => strtolower((string) $s))
+            ->countBy()
+            ->toArray();
+
+        $result = [
+            'present' => 0,
+            'late' => 0,
+            'absent' => 0,
+            'sick' => 0,
+        ];
+
+        foreach ($statusCounts as $status => $count) {
+            if (array_key_exists($status, $result)) {
+                $result[$status] = $count;
+            }
+        }
 
         return [
-            'total_students' => $totalStudents,
-            'male_students' => $maleStudents,
-            'female_students' => $femaleStudents,
-            'homeroom_teacher' => $classroom->currentHomeroom?->teacher->user->name ?? '-',
+            'present' => $result['present'],
+            'late' => $result['late'],
+            'absent' => $result['absent'],
+            'sick' => $result['sick'],
         ];
     }
 }

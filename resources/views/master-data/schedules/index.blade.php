@@ -34,8 +34,8 @@
                             <td>{{ $schedule->subject->name }}</td>
                             <td>{{ $schedule->classroom->name }}</td>
                             <td>{{ ucwords($schedule->day) }}</td>
-                            <td>{{ $schedule->time_start }}</td>
-                            <td>{{ $schedule->time_finish }}</td>
+                            <td>{{ $schedule->start_time }}</td>
+                            <td>{{ $schedule->end_time }}</td>
                             <td>
                                 <a href="{{ route('dashboard.schedules.edit', $schedule->id) }}"
                                     class="btn btn-warning btn-sm my-2 btn-action">

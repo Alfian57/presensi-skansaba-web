@@ -14,13 +14,11 @@ class DatabaseSeeder extends Seeder
             ClassroomSeeder::class,
             SubjectSeeder::class,
             UserSeeder::class,
-            HomeroomSeeder::class,
+            HomeroomTeacherSeeder::class,
             HolidaySeeder::class,
         ]);
 
         $this->command->info('Database seeded successfully!');
         $this->command->info('Default admin credentials:');
-        $this->command->info('Email: admin@skansaba.sch.id');
-        $this->command->info('Password: password');
     }
 }

@@ -4,7 +4,7 @@
     @include('components.breadcrumb')
 
     <h2 class="text-center mt-3">Ubah Data Mata Pelajaran</h2>
-    <form action="{{ route('dashboard.subjects.update', $subject->id) }}" method="POST">
+    <form action="{{ route('dashboard.subjects.update', $subject->slug) }}" method="POST">
         @method('put')
         @csrf
         <div class="mb-3 mt-3">

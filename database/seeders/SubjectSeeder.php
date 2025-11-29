@@ -32,6 +32,7 @@ class SubjectSeeder extends Seeder
             Subject::create([
                 'name' => $item,
                 'slug' => Str::slug($item),
+                'code' => 'MK-' . date('Y') . '-' . Str::slug($item),
             ]);
         }
     }

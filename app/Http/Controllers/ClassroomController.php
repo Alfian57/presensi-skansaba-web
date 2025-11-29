@@ -34,7 +34,7 @@ class ClassroomController extends Controller
 
         // Search
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%'.$request->search.'%');
+            $query->where('name', 'like', '%' . $request->search . '%');
         }
 
         $classrooms = $query->orderBy('grade_level')
@@ -65,7 +65,7 @@ class ClassroomController extends Controller
 
             return redirect()->route('dashboard.classrooms.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back()->withInput();
         }
@@ -102,7 +102,7 @@ class ClassroomController extends Controller
 
             return redirect()->route('dashboard.classrooms.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back()->withInput();
         }
@@ -128,7 +128,7 @@ class ClassroomController extends Controller
 
             return redirect()->route('dashboard.classrooms.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back();
         }

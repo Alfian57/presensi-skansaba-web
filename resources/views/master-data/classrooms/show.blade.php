@@ -21,7 +21,7 @@
                         </tr>
                         <tr>
                             <th>Jurusan</th>
-                            <td>: {{ $classroom->major ?? '-' }}</td>
+                            <td>: {{ $classroom->major }}</td>
                         </tr>
                         <tr>
                             <th>Nomor Kelas</th>
@@ -37,7 +37,7 @@
                         <a href="{{ route('dashboard.classrooms.index') }}" class="btn btn-secondary btn-sm">
                             <i class="fas fa-arrow-left"></i> Kembali
                         </a>
-                        <a href="{{ route('dashboard.classrooms.edit', $classroom->id) }}" class="btn btn-warning btn-sm">
+                        <a href="{{ route('dashboard.classrooms.edit', $classroom->slug) }}" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Edit
                         </a>
                     </div>

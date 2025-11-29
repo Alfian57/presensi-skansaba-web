@@ -5,11 +5,10 @@ namespace App\Models;
 use App\Enums\Day;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Schedule extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'classroom_id',
@@ -21,15 +20,12 @@ class Schedule extends Model
         'start_time',
         'end_time',
         'room',
-        'is_active',
     ];
 
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
         'semester' => 'integer',
-        'is_active' => 'boolean',
-        'day' => Day::class,
     ];
 
     public function classroom()
@@ -45,11 +41,6 @@ class Schedule extends Model
     public function subject()
     {
         return $this->belongsTo(Subject::class);
-    }
-
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', true);
     }
 
     public function scopeByDay($query, $day)

@@ -29,15 +29,15 @@
                             <td>{{ $subject->code }}</td>
                             <td>{{ $subject->name }}</td>
                             <td>
-                                <a href="{{ route('dashboard.subjects.show', $subject->id) }}"
+                                <a href="{{ route('dashboard.subjects.show', $subject->slug) }}"
                                     class="btn btn-info btn-sm my-2 btn-action">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{{ route('dashboard.subjects.edit', $subject->id) }}"
+                                <a href="{{ route('dashboard.subjects.edit', $subject->slug) }}"
                                     class="btn btn-warning btn-sm my-2 btn-action">
                                     <img src="/img/edit.png" alt="Edit" class="icon">
                                 </a>
-                                <form action="{{ route('dashboard.subjects.destroy', $subject->id) }}" method="POST"
+                                <form action="{{ route('dashboard.subjects.destroy', $subject->slug) }}" method="POST"
                                     class="d-inline-block">
                                     @method('delete')
                                     @csrf

@@ -2,144 +2,129 @@
 
 namespace App\Http\Controllers;
 
-use App\Helper;
-use App\Http\Requests\StoreHomeroomTeacherRequest;
-use App\Http\Requests\UpdateHomeroomTeacherRequest;
+use App\Http\Requests\HomeroomTeacher\StoreHomeroomTeacherRequest;
+use App\Http\Requests\HomeroomTeacher\UpdateHomeroomTeacherRequest;
 use App\Models\Classroom;
-use App\Models\Homeroom;
+use App\Models\HomeroomTeacher;
 use App\Models\Teacher;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class HomeroomTeacherController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Contracts\View\View
+     * Display a listing of homeroom teachers.
      */
     public function index()
     {
-        Helper::addHistory('/admin/homeroom-teachers', 'Wali Kelas');
+        $homeroomTeachers = HomeroomTeacher::with(['teacher.user', 'classroom'])
+            ->latest()
+            ->get();
 
-        $homeroomTeachers = Homeroom::latest()->with('teacher', 'grade');
-
-        $data = [
-            'title' => 'Semua Wali Kelas',
-            'homeroomTeachers' => $homeroomTeachers->get(),
-        ];
-
-        return view('master-data.homerooms.index', $data);
+        return view('master-data.homeroom-teachers.index', compact('homeroomTeachers'));
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Contracts\View\View
+     * Show the form for creating a new homeroom teacher.
      */
     public function create()
     {
-        Helper::addHistory('/admin/homeroom-teachers/create', 'Tambah Wali Kelas');
+        // Get teachers that are not yet homeroom teachers
+        $assignedTeacherIds = HomeroomTeacher::pluck('teacher_id');
+        $teachers = Teacher::whereNotIn('id', $assignedTeacherIds)
+            ->with('user')
+            ->get();
 
-        $homeroomTeachers = Homeroom::pluck('teacher_id');
-        if ($homeroomTeachers->isEmpty()) {
-            $homeroomTeachers = [0];
-        }
+        // Get classrooms that don't have homeroom teacher yet
+        $assignedClassroomIds = HomeroomTeacher::pluck('classroom_id');
+        $classrooms = Classroom::whereNotIn('id', $assignedClassroomIds)
+            ->orderBy('grade_level')
+            ->orderBy('major')
+            ->orderBy('class_number')
+            ->get();
 
-        $gradesForShow = Homeroom::pluck('grade_id');
-        if ($gradesForShow->isEmpty()) {
-            $gradesForShow = [0];
-        }
-
-        $data = [
-            'title' => 'Tambah Wali Kelas',
-            'teachers' => Teacher::latest()->whereNotIn('id', $homeroomTeachers)->get(),
-            'grades' => Classroom::latest()->whereNotIn('id', $gradesForShow)->get(),
-        ];
-
-        return view('master-data.homerooms.create', $data);
+        return view('master-data.homeroom-teachers.create', compact('teachers', 'classrooms'));
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\RedirectResponse
+     * Store a newly created homeroom teacher.
      */
     public function store(StoreHomeroomTeacherRequest $request)
     {
-        $validatedData = $request->validate([
-            'teacher_id' => 'required',
-            'grade_id' => 'required',
-        ]);
+        try {
+            HomeroomTeacher::create($request->validated());
 
-        Homeroom::create($validatedData);
+            Alert::success('Berhasil', 'Wali kelas berhasil ditambahkan.');
 
-        return redirect('/admin/homeroom-teachers')->with('success', 'Data Wali Kelas Berhasil Ditambahkan');
-    }
+            return redirect()->route('dashboard.homeroom-teachers.index');
+        } catch (\Exception $e) {
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
-    /**
-     * Display the specified resource.
-     *
-     * @return void
-     */
-    public function show(Homeroom $homeroomTeacher)
-    {
-        abort(404);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Homeroom $homeroomTeacher)
-    {
-        Helper::addHistory('/admin/homeroom-teachers/'.$homeroomTeacher->id.'/edit', 'Ubah Wali Kelas');
-
-        $homeroomTeachers = Homeroom::pluck('teacher_id');
-        if ($homeroomTeachers->isEmpty()) {
-            $homeroomTeachers = [0];
+            return back()->withInput();
         }
+    }
 
-        $gradesForShow = Homeroom::pluck('grade_id');
-        if ($gradesForShow->isEmpty()) {
-            $gradesForShow = [0];
+    /**
+     * Show the form for editing the specified homeroom teacher.
+     */
+    public function edit(HomeroomTeacher $homeroomTeacher)
+    {
+        $homeroomTeacher->load(['teacher.user', 'classroom']);
+
+        // Get available teachers (excluding current)
+        $assignedTeacherIds = HomeroomTeacher::where('id', '!=', $homeroomTeacher->id)
+            ->pluck('teacher_id');
+        $teachers = Teacher::whereNotIn('id', $assignedTeacherIds)
+            ->with('user')
+            ->get();
+
+        // Get available classrooms (excluding current)
+        $assignedClassroomIds = HomeroomTeacher::where('id', '!=', $homeroomTeacher->id)
+            ->pluck('classroom_id');
+        $classrooms = Classroom::whereNotIn('id', $assignedClassroomIds)
+            ->orderBy('grade_level')
+            ->orderBy('major')
+            ->orderBy('class_number')
+            ->get();
+
+        return view('master-data.homeroom-teachers.edit', compact('homeroomTeacher', 'teachers', 'classrooms'));
+    }
+
+    /**
+     * Update the specified homeroom teacher.
+     */
+    public function update(UpdateHomeroomTeacherRequest $request, HomeroomTeacher $homeroomTeacher)
+    {
+        try {
+            $homeroomTeacher->update($request->validated());
+
+            Alert::success('Berhasil', 'Wali kelas berhasil diperbarui.');
+
+            return redirect()->route('dashboard.homeroom-teachers.index');
+        } catch (\Exception $e) {
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+
+            return back()->withInput();
         }
-
-        $data = [
-            'title' => 'Tambah Wali Kelas',
-            'homeroomTeacher' => $homeroomTeacher,
-            'teachers' => Teacher::latest()->whereNotIn('id', $homeroomTeachers)->get(),
-            'grades' => Classroom::latest()->whereNotIn('id', $gradesForShow)->get(),
-        ];
-
-        return view('master-data.homerooms.edit', $data);
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @return \Illuminate\Http\Response
+     * Remove the specified homeroom teacher.
      */
-    public function update(UpdateHomeroomTeacherRequest $request, Homeroom $homeroomTeacher)
+    public function destroy(HomeroomTeacher $homeroomTeacher)
     {
-        $validatedData = $request->validate([
-            'teacher_id' => 'required',
-            'grade_id' => 'required',
-        ]);
+        try {
+            $teacherName = $homeroomTeacher->teacher->user->name;
+            $classroomName = $homeroomTeacher->classroom->name;
 
-        Homeroom::where('id', $homeroomTeacher->id)->update($validatedData);
+            $homeroomTeacher->delete();
 
-        return redirect('/admin/homeroom-teachers')->with('success', 'Data Wali Kelas Berhasil Diperbarui');
-    }
+            Alert::success('Berhasil', "Wali kelas {$teacherName} untuk kelas {$classroomName} berhasil dihapus.");
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Homeroom $homeroomTeacher)
-    {
-        Homeroom::destroy($homeroomTeacher->id);
+            return redirect()->route('dashboard.homeroom-teachers.index');
+        } catch (\Exception $e) {
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
-        return redirect('/admin/homeroom-teachers')->with('success', 'Data Wali Kelas '.$homeroomTeacher->teacher->name.' Berhasil Dihapus');
+            return back();
+        }
     }
 }

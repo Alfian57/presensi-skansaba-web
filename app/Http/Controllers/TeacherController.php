@@ -15,7 +15,8 @@ class TeacherController extends Controller
 {
     public function __construct(
         private TeacherService $teacherService
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of teachers.
@@ -60,7 +61,7 @@ class TeacherController extends Controller
 
             return redirect()->route('dashboard.teachers.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back()->withInput();
         }
@@ -98,7 +99,7 @@ class TeacherController extends Controller
 
             return redirect()->route('dashboard.teachers.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back()->withInput();
         }
@@ -124,7 +125,7 @@ class TeacherController extends Controller
 
             return redirect()->route('dashboard.teachers.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back();
         }
@@ -143,7 +144,7 @@ class TeacherController extends Controller
 
             return back();
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back();
         }
@@ -154,6 +155,6 @@ class TeacherController extends Controller
      */
     public function export()
     {
-        return Excel::download(new TeacherExport(), 'teachers-'.date('Y-m-d').'.xlsx');
+        return Excel::download(new TeacherExport(), 'teachers-' . date('Y-m-d') . '.xlsx');
     }
 }

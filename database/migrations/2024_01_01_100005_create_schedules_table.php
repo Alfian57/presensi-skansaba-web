@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Day;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,17 +16,14 @@ return new class() extends Migration
             $table->foreignId('teacher_id')->constrained()->onDelete('restrict');
             $table->string('academic_year'); // e.g., 2024/2025
             $table->integer('semester')->default(1); // 1 or 2
-            $table->enum('day', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
+            $table->enum('day', Day::values());
             $table->time('start_time');
             $table->time('end_time');
-            $table->string('room')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->string('room');
             $table->timestamps();
-            $table->softDeletes();
 
             $table->index(['classroom_id', 'day', 'academic_year']);
             $table->index(['teacher_id', 'day']);
-            $table->index('is_active');
         });
     }
 

@@ -2,10 +2,11 @@
 
 namespace App\Enums;
 
-enum Gender: string
+enum HolidayType: string
 {
-    case MALE = 'male';
-    case FEMALE = 'female';
+    case NATIONAL = 'national';
+    case SCHOOL = 'school';
+    case REGIONAL = 'regional';
 
     public static function values(): array
     {

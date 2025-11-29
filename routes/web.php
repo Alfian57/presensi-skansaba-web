@@ -6,7 +6,7 @@ use App\Http\Controllers\ClassAbsenceController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\HomeroomController;
+use App\Http\Controllers\HomeroomTeacherController;
 use App\Http\Controllers\OtherDataController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicAttendanceController;
@@ -29,7 +29,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Root redirect
-Route::get('/', fn () => redirect()->route('auth.login'))->name('home.redirect');
+Route::get('/', fn() => redirect()->route('auth.login'))->name('home.redirect');
 
 // Authentication routes
 Route::middleware('guest')->prefix('auth')->name('auth.')->group(function () {
@@ -112,7 +112,7 @@ Route::prefix('dashboard')->middleware(['auth', 'role:admin,teacher'])->name('da
         Route::resource('subjects', SubjectController::class)->names('subjects');
 
         // Homeroom teachers management
-        Route::resource('homerooms', HomeroomController::class)->except(['show'])->names('homerooms');
+        Route::resource('homeroom-teachers', HomeroomTeacherController::class)->except(['show'])->names('homeroom-teachers');
 
         // Schedules management
         Route::get('schedules/classroom/{classroom}', [ScheduleController::class, 'byClassroom'])->name('schedules.classroom');

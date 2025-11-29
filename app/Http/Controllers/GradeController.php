@@ -6,7 +6,7 @@ use App\Helper;
 use App\Http\Requests\StoreGradeRequest;
 use App\Http\Requests\UpdateGradeRequest;
 use App\Models\Classroom;
-use App\Models\Homeroom;
+use App\Models\HomeroomTeacher;
 use App\Models\Schedule;
 use App\Models\Student;
 use Illuminate\Support\Str;
@@ -122,7 +122,7 @@ class GradeController extends Controller
     {
         $students = Student::where('grade_id', $grade->id)->count();
         $schedules = Schedule::where('grade_id', $grade->id)->count();
-        $homeroomTeacher = Homeroom::where('grade_id', $grade->id)->count();
+        $homeroomTeacher = HomeroomTeacher::where('grade_id', $grade->id)->count();
 
         if ($students > 0) {
             return redirect('/admin/grades')->with('sAError', 'Kelas Ini Digunakan Oleh '.$students.' Siswa. Silahkan Edit Data Siswa Terlebih Dahulu');

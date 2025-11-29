@@ -170,11 +170,6 @@ php artisan l5-swagger:generate
 # Link storage
 php artisan storage:link
 
-# Generate IDE helper files (untuk autocomplete)
-php artisan ide-helper:generate
-php artisan ide-helper:models --nowrite
-php artisan ide-helper:meta
-
 # Start development server
 php artisan serve
 ```

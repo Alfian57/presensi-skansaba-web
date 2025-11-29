@@ -5,11 +5,10 @@ namespace App\Models;
 use App\Enums\Gender;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Teacher extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'user_id',
@@ -37,12 +36,12 @@ class Teacher extends Model
 
     public function homerooms()
     {
-        return $this->hasMany(Homeroom::class);
+        return $this->hasMany(HomeroomTeacher::class);
     }
 
     public function activeHomeroom()
     {
-        return $this->hasOne(Homeroom::class)->where('is_active', true);
+        return $this->hasOne(HomeroomTeacher::class)->where('is_active', true);
     }
 
     public function scopeSearch($query, $search)
@@ -69,6 +68,6 @@ class Teacher extends Model
 
     public function getRouteKeyName()
     {
-        return 'employee_number';
+        return 'nip';
     }
 }

@@ -18,7 +18,9 @@
                     <tr>
                         <th>#</th>
                         <th>Kelas</th>
+                        <th>Kapasitas Kelas</th>
                         <th>Jumlah Siswa</th>
+                        <th>Siap Digunakan ?</th>
                         <th class="action">Aksi</th>
                     </tr>
                 </thead>
@@ -28,16 +30,24 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $classroom->name }}</td>
                             <td>{{ $classroom->students_count }} siswa</td>
+                            <td>{{ $classroom->class_number }} siswa</td>
                             <td>
-                                <a href="{{ route('dashboard.classrooms.show', $classroom->id) }}"
+                                @if ($classroom->is_active)
+                                    <span class="badge bg-success">Ya</span>
+                                @else
+                                    <span class="badge bg-danger">Tidak</span>
+                                @endif
+                            </td>
+                            <td>
+                                <a href="{{ route('dashboard.classrooms.show', $classroom->slug) }}"
                                     class="btn btn-info btn-sm my-2 btn-action">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{{ route('dashboard.classrooms.edit', $classroom->id) }}"
+                                <a href="{{ route('dashboard.classrooms.edit', $classroom->slug) }}"
                                     class="btn btn-warning btn-sm my-2 btn-action">
                                     <img src="/img/edit.png" alt="Edit" class="icon">
                                 </a>
-                                <form action="{{ route('dashboard.classrooms.destroy', $classroom->id) }}" method="POST"
+                                <form action="{{ route('dashboard.classrooms.destroy', $classroom->slug) }}" method="POST"
                                     class="d-inline-block">
                                     @method('delete')
                                     @csrf

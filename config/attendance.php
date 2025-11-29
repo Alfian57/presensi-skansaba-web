@@ -39,12 +39,6 @@ return [
         'radius_meters' => env('ATTENDANCE_RADIUS_METERS', 100),
     ],
 
-    'photo' => [
-        'enabled' => env('ATTENDANCE_PHOTO_ENABLED', true),
-        'required' => env('ATTENDANCE_PHOTO_REQUIRED', false),
-        'max_size_kb' => env('ATTENDANCE_PHOTO_MAX_SIZE', 2048), // 2MB
-    ],
-
     'working_days' => [
         'monday' => true,
         'tuesday' => true,

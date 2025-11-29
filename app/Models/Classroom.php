@@ -4,12 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Classroom extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'name',
@@ -57,12 +56,12 @@ class Classroom extends Model
 
     public function homeroom()
     {
-        return $this->hasOne(Homeroom::class);
+        return $this->hasOne(HomeroomTeacher::class);
     }
 
     public function activeHomeroom()
     {
-        return $this->hasOne(Homeroom::class)->where('is_active', true);
+        return $this->hasOne(HomeroomTeacher::class)->where('is_active', true);
     }
 
     // Scopes

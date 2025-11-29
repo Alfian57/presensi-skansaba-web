@@ -5,11 +5,10 @@ namespace App\Models;
 use App\Enums\AttendanceStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Attendance extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'student_id',
@@ -18,8 +17,6 @@ class Attendance extends Model
         'check_in_time',
         'check_out_time',
         'notes',
-        'check_in_photo',
-        'check_out_photo',
     ];
 
     protected $casts = [

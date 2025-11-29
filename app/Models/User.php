@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -13,7 +12,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements HasMedia
 {
-    use HasApiTokens, HasFactory, HasRoles, InteractsWithMedia, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, HasRoles, InteractsWithMedia, Notifiable;
 
     /**
      * The guard name for Spatie Permission
@@ -77,7 +76,7 @@ class User extends Authenticatable implements HasMedia
     public function getProfilePictureUrlAttribute()
     {
         if ($this->profile_picture) {
-            return asset('storage/'.$this->profile_picture);
+            return asset('storage/' . $this->profile_picture);
         }
 
         return $this->getFirstMediaUrl('profile-pictures') ?: asset('img/default-avatar.png');
