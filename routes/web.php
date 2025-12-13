@@ -136,12 +136,5 @@ Route::prefix('dashboard')->middleware(['auth', 'role:admin,teacher'])->name('da
             Route::get('/', [StudentController::class, 'activeDevices'])->name('index');
             Route::delete('/{student}', [StudentController::class, 'unregisterDevice'])->name('unregister');
         });
-
-        // Other data management (system settings)
-        Route::prefix('other-data')->name('other-data.')->group(function () {
-            Route::get('/', [OtherDataController::class, 'index'])->name('index');
-            Route::get('/{id}/edit', [OtherDataController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [OtherDataController::class, 'update'])->name('update');
-        });
     });
 });

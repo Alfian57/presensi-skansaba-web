@@ -206,13 +206,6 @@
                             <p class="ms-3">Device Aktif</p>
                         </a>
                     </li>
-
-                    <li class="nav-item {{ Request::is('admin/other-data*') ? 'active' : '' }}">
-                        <a href="{{ route('dashboard.other-data.index') }}">
-                            <i class="fas fa-cog"></i>
-                            <p class="ms-3">Data Lainnya</p>
-                        </a>
-                    </li>
                 @else
                     {{-- SECTION: GURU --}}
                     <li class="nav-section">
@@ -229,19 +222,6 @@
                         </a>
                     </li>
                 @endif
-
-                {{-- Logout --}}
-                <li class="nav-item mt-3">
-                    <a href="#" class="btn btn-primary w-100 rounded text-start text-dark
-                        collapsed mb-3 btn-submit-logout">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <p class="text-white ms-3">Logout</p>
-                    </a>
-                    <form id="logout-form" action="{{ route('dashboard.logout') }}" method="POST"
-                        style="display: none;">
-                        @csrf
-                    </form>
-                </li>
             </ul>
         </div>
     </div>

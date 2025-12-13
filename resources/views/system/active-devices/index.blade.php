@@ -18,7 +18,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('dashboard.active-devices.index') }}" method="GET" class="d-flex">
+                <form action="{{ route('dashboard.devices.index') }}" method="GET" class="d-flex">
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="nisn" class="form-label">NISN</label>

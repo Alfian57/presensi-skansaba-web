@@ -29,7 +29,7 @@ class StudentController extends Controller
 
         // Search by NISN
         if ($request->filled('nisn')) {
-            $query->where('nisn', 'like', '%'.$request->nisn.'%');
+            $query->where('nisn', 'like', '%' . $request->nisn . '%');
         }
 
         $students = $query->orderBy('nisn')->get();
@@ -60,7 +60,7 @@ class StudentController extends Controller
 
             return redirect()->route('dashboard.students.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back()->withInput();
         }
@@ -105,7 +105,7 @@ class StudentController extends Controller
 
             return redirect()->route('dashboard.students.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back()->withInput();
         }
@@ -124,7 +124,7 @@ class StudentController extends Controller
 
             return redirect()->route('dashboard.students.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back();
         }
@@ -143,7 +143,7 @@ class StudentController extends Controller
 
             return back();
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back();
         }
@@ -167,7 +167,7 @@ class StudentController extends Controller
 
             return back();
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back();
         }
@@ -185,7 +185,7 @@ class StudentController extends Controller
 
             return back();
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back();
         }
@@ -201,7 +201,7 @@ class StudentController extends Controller
             ->orderBy('device_registered_at', 'desc')
             ->get();
 
-        return view('users.students.devices', compact('students'));
+        return view('system.active-devices.index', compact('students'));
     }
 
     /**
@@ -211,6 +211,6 @@ class StudentController extends Controller
     {
         $classroomId = $request->input('classroom_id');
 
-        return Excel::download(new StudentExport($classroomId), 'students-'.date('Y-m-d').'.xlsx');
+        return Excel::download(new StudentExport($classroomId), 'students-' . date('Y-m-d') . '.xlsx');
     }
 }

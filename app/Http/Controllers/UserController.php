@@ -78,7 +78,7 @@ class UserController extends Controller
 
             return redirect()->route('dashboard.admins.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back()->withInput();
         }
@@ -87,32 +87,32 @@ class UserController extends Controller
     /**
      * Display the specified user.
      */
-    public function show(User $user)
+    public function show(User $admin)
     {
-        $user->load(['roles']);
+        $admin->load(['roles']);
 
-        return view('users.show', compact('user'));
+        return view('users.show', compact('admin'));
     }
 
     /**
      * Show the form for editing the specified user.
      */
-    public function edit(User $user)
+    public function edit(User $admin)
     {
-        $user->load(['roles']);
+        $admin->load(['roles']);
 
-        return view('users.admins.edit', compact('user'));
+        return view('users.admins.edit', compact('admin'));
     }
 
     /**
      * Update the specified user.
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, User $admin)
     {
         $request->validate([
             'name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email,'.$user->id,
-            'username' => 'required|string|max:50|unique:users,username,'.$user->id,
+            'email' => 'required|email|unique:users,email,' . $admin->id,
+            'username' => 'required|string|max:50|unique:users,username,' . $admin->id,
         ], [
             'name.required' => 'Nama wajib diisi.',
             'email.required' => 'Email wajib diisi.',
@@ -123,13 +123,13 @@ class UserController extends Controller
         ]);
 
         try {
-            $user->update($request->only(['name', 'email', 'username']));
+            $admin->update($request->only(['name', 'email', 'username']));
 
-            Alert::success('Berhasil', "Data admin {$user->name} berhasil diperbarui.");
+            Alert::success('Berhasil', "Data admin {$admin->name} berhasil diperbarui.");
 
             return redirect()->route('dashboard.admins.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back()->withInput();
         }
@@ -138,11 +138,11 @@ class UserController extends Controller
     /**
      * Remove the specified user.
      */
-    public function destroy(User $user)
+    public function destroy(User $admin)
     {
         try {
             // Prevent deleting yourself
-            if ($user->id === auth()->id()) {
+            if ($admin->id === auth()->id()) {
                 Alert::warning('Gagal', 'Anda tidak dapat menghapus akun Anda sendiri.');
 
                 return back();
@@ -156,14 +156,14 @@ class UserController extends Controller
                 return back();
             }
 
-            $name = $user->name;
-            $user->delete();
+            $name = $admin->name;
+            $admin->delete();
 
             Alert::success('Berhasil', "Admin {$name} berhasil dihapus.");
 
             return redirect()->route('dashboard.admins.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back();
         }
@@ -172,19 +172,19 @@ class UserController extends Controller
     /**
      * Reset user password.
      */
-    public function resetPassword(User $user)
+    public function resetPassword(User $admin)
     {
         try {
             $newPassword = 'password'; // Default password
-            $user->update([
+            $admin->update([
                 'password' => Hash::make($newPassword),
             ]);
 
-            Alert::success('Berhasil', "Password {$user->name} berhasil direset ke: {$newPassword}");
+            Alert::success('Berhasil', "Password {$admin->name} berhasil direset ke: {$newPassword}");
 
             return back();
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
 
             return back();
         }
