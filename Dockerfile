@@ -1,5 +1,5 @@
-# Base image: PHP 8.2 with FPM (Alpine for smaller size)
-FROM php:8.2-fpm-alpine AS base
+# Base image: PHP 8.3 with FPM (Alpine for smaller size)
+FROM php:8.3-fpm-alpine AS base
 
 # Install system dependencies
 RUN apk add --no-cache \
