@@ -1,6 +1,6 @@
 # 📱 Sistem Presensi Siswa SMKN 1 Bantul
 
-<!-- CI/CD: 2025-12-13 22:29 WIB -->
+<!-- CI/CD: 2025-12-13 23:09 WIB -->
 
 <p align="center">
   <img src="https://img.shields.io/badge/Laravel-9.52-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel">
