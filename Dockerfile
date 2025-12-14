@@ -83,8 +83,6 @@ EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
     CMD curl -f http://localhost/api/health || exit 1
 
-# Switch to www-data user
-USER www-data
-
+# Run as root for supervisord (nginx/php-fpm handle their own users)
 # Command to run Supervisor
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
