@@ -49,9 +49,8 @@ RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 # Copy application files
 COPY . .
 
-# Generate optimized autoloader and run post-install scripts
+# Generate optimized autoloader and cache routes/views (NOT config - that needs runtime .env)
 RUN composer dump-autoload --optimize --no-dev \
-    && php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache
 

@@ -23,6 +23,10 @@ if [ ! -e /var/www/html/public/storage ]; then
   php artisan storage:link
 fi
 
+# Clear any cached config from build time to use runtime .env
+echo "🔄 Clearing cached config..."
+php artisan config:clear
+
 # Database migrations
 if [ "$RUN_MIGRATE_FRESH" = "true" ]; then
   echo "⚠️  WARNING: Running migrate:fresh - this will destroy all data!"
