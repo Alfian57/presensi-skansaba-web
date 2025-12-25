@@ -80,11 +80,7 @@
                             <li>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="{{ route('dashboard.profile.edit') }}">
-                                    <i class="fas fa-key me-2"></i>Ganti Password
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{{ route('dashboard.profile.edit') }}">
-                                    <i class="fas fa-camera me-2"></i>Ganti Foto Profile
+                                    <i class="fas fa-key me-2"></i>Pengaturan
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <form action="{{ route('dashboard.logout') }}" method="POST" class="dropdown-item">

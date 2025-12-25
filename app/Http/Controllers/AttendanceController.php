@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\AttendanceStatus;
 use App\Exports\AttendanceExport;
+use App\Http\Controllers\Traits\HandlesAlerts;
 use App\Models\Attendance;
 use App\Models\Classroom;
 use App\Models\Student;
@@ -11,10 +12,11 @@ use App\Services\AttendanceService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
-use RealRashid\SweetAlert\Facades\Alert;
 
 class AttendanceController extends Controller
 {
+    use HandlesAlerts;
+
     public function __construct(
         private AttendanceService $attendanceService
     ) {}
@@ -26,7 +28,6 @@ class AttendanceController extends Controller
     {
         $query = Attendance::with(['student.user', 'student.classroom']);
 
-        // Filter by date range
         if ($request->filled('start_date')) {
             $query->whereDate('date', '>=', $request->start_date);
         }
@@ -34,32 +35,23 @@ class AttendanceController extends Controller
             $query->whereDate('date', '<=', $request->end_date);
         }
 
-        // Filter by classroom
         if ($request->filled('classroom_id')) {
-            $query->whereHas('student', function ($q) use ($request) {
-                $q->where('classroom_id', $request->classroom_id);
-            });
+            $query->whereHas('student', fn($q) => $q->where('classroom_id', $request->classroom_id));
         }
 
-        // Filter by status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Search by student name or NISN
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('student', function ($q) use ($search) {
                 $q->where('nisn', 'like', "%{$search}%")
-                    ->orWhereHas('user', function ($q2) use ($search) {
-                        $q2->where('name', 'like', "%{$search}%");
-                    });
+                    ->orWhereHas('user', fn($q2) => $q2->where('name', 'like', "%{$search}%"));
             });
         }
 
-        $attendances = $query->latest('date')
-            ->latest('check_in')
-            ->get();
+        $attendances = $query->latest('date')->latest('check_in_time')->get();
 
         $classrooms = Classroom::orderBy('grade_level')
             ->orderBy('major')
@@ -87,7 +79,7 @@ class AttendanceController extends Controller
         $classroomId = $request->classroom_id;
 
         $students = Student::with(['user', 'classroom'])
-            ->when($classroomId, fn ($q) => $q->where('classroom_id', $classroomId))
+            ->when($classroomId, fn($q) => $q->where('classroom_id', $classroomId))
             ->orderBy('classroom_id')
             ->get();
 
@@ -117,6 +109,52 @@ class AttendanceController extends Controller
     }
 
     /**
+     * Display attendances by classroom.
+     */
+    public function byClassroom(Classroom $classroom)
+    {
+        $attendances = Attendance::with(['student.user'])
+            ->whereHas('student', fn($q) => $q->where('classroom_id', $classroom->id))
+            ->orderBy('date', 'desc')
+            ->orderBy('check_in_time', 'desc')
+            ->paginate(20);
+
+        return view('attendances.by-classroom', compact('classroom', 'attendances'));
+    }
+
+    /**
+     * Display attendances by student.
+     */
+    public function byStudent(Student $student)
+    {
+        $student->load(['user', 'classroom']);
+
+        $attendances = Attendance::where('student_id', $student->id)
+            ->orderBy('date', 'desc')
+            ->paginate(20);
+
+        return view('attendances.by-student', compact('student', 'attendances'));
+    }
+
+    /**
+     * Display attendances by date.
+     */
+    public function byDate($date)
+    {
+        $attendances = Attendance::with(['student.user', 'student.classroom'])
+            ->whereDate('date', $date)
+            ->orderBy('check_in_time')
+            ->get();
+
+        $classrooms = Classroom::orderBy('grade_level')
+            ->orderBy('major')
+            ->orderBy('class_number')
+            ->get();
+
+        return view('attendances.by-date', compact('attendances', 'classrooms', 'date'));
+    }
+
+    /**
      * Display the specified attendance.
      */
     public function show(Attendance $attendance)
@@ -143,18 +181,17 @@ class AttendanceController extends Controller
     public function update(Request $request, Attendance $attendance)
     {
         $request->validate([
-            'status' => 'required|in:'.implode(',', array_column(AttendanceStatus::cases(), 'value')),
+            'status' => 'required|in:' . implode(',', array_column(AttendanceStatus::cases(), 'value')),
             'notes' => 'nullable|string|max:500',
         ]);
 
         try {
             $this->attendanceService->updateStatus($attendance, $request->status, $request->notes);
-
-            Alert::success('Berhasil', 'Data presensi berhasil diperbarui.');
+            $this->alertSuccess('Data presensi berhasil diperbarui.');
 
             return redirect()->route('dashboard.attendances.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            $this->alertException($e);
 
             return back()->withInput();
         }
@@ -167,12 +204,11 @@ class AttendanceController extends Controller
     {
         try {
             $attendance->delete();
-
-            Alert::success('Berhasil', 'Data presensi berhasil dihapus.');
+            $this->alertSuccess('Data presensi berhasil dihapus.');
 
             return redirect()->route('dashboard.attendances.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            $this->alertException($e);
 
             return back();
         }
@@ -189,7 +225,7 @@ class AttendanceController extends Controller
 
         return Excel::download(
             new AttendanceExport($startDate, $endDate, $classroomId),
-            'attendances-'.date('Y-m-d').'.xlsx'
+            'attendances-' . date('Y-m-d') . '.xlsx'
         );
     }
 

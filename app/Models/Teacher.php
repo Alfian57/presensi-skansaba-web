@@ -12,7 +12,7 @@ class Teacher extends Model
 
     protected $fillable = [
         'user_id',
-        'employee_number',
+        'nip',
         'date_of_birth',
         'gender',
         'phone',
@@ -48,7 +48,7 @@ class Teacher extends Model
     {
         return $query->whereHas('user', function ($q) use ($search) {
             $q->where('name', 'like', "%{$search}%");
-        })->orWhere('employee_number', 'like', "%{$search}%");
+        })->orWhere('nip', 'like', "%{$search}%");
     }
 
     public function getNameAttribute()

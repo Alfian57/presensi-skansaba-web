@@ -3,47 +3,29 @@
 @section('content')
     @include('components.breadcrumb')
 
-    <h2 class="text-center mt-2">Guru</h2>
-
-    <!-- Modal -->
-    <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title">
-                        Filter
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="{{ route('dashboard.teachers.index') }}" method="GET" class="d-flex">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="nip" class="form-label">NIP</label>
-                            <input class="form-control form-control-sm" name="nip" type="text" placeholder="NIP Guru"
-                                value="@if (request('nip')) {{ request('nip') }} @endif">
-                        </div>
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-primary btn-sm"><img src="/img/search.png"
-                                    class="icon"></button>
-                        </div>
-
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="text-end mb-3">
-        <a href="{{ route('dashboard.teachers.create') }}" class="btn btn-success btn-sm">+ Tambah Guru</a>
-        <a href="{{ route('dashboard.teachers.export') }}" class="btn btn-primary btn-sm">Download Data (Excel)</a>
-        <a class="btn btn-info btn-sm ml-auto text-white" data-toggle="modal" data-target="#filterModal">
-            <i class="fa fa-search" aria-hidden="true"></i>
-            Filter
+    <x-ui.page-header 
+        title="Guru" 
+        :createRoute="route('dashboard.teachers.create')" 
+        createLabel="+ Tambah Guru"
+        :exportRoute="route('dashboard.teachers.export')"
+        exportLabel="Download Data (Excel)"
+    >
+        <a class="btn btn-info btn-sm text-white" data-toggle="modal" data-target="#filterModal">
+            <i class="fa fa-search"></i> Filter
         </a>
-    </div>
+    </x-ui.page-header>
+
+    {{-- Filter Modal --}}
+    <x-ui.modal id="filterModal" title="Filter">
+        <form action="{{ route('dashboard.teachers.index') }}" method="GET">
+            <x-forms.input name="search" label="Cari NIP/Nama" placeholder="NIP atau Nama Guru" :value="request('search')" />
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <img src="/img/search.png" class="icon"> Cari
+                </button>
+            </div>
+        </form>
+    </x-ui.modal>
 
     @if ($teachers->isEmpty())
         @include('components.empty-data')
@@ -55,6 +37,7 @@
                         <th>#</th>
                         <th>NIP</th>
                         <th>Nama</th>
+                        <th>Status</th>
                         <th>Image</th>
                         <th class="action">Aksi</th>
                     </tr>
@@ -63,54 +46,38 @@
                     @foreach ($teachers as $teacher)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
-                            <td>{{ $teacher->employee_number }}</td>
-                            <td>{{ $teacher->name }}</td>
-
-                            @if ($teacher->user->profile_picture)
-                                <td>
+                            <td>{{ $teacher->nip }}</td>
+                            <td>{{ $teacher->user->name ?? $teacher->name }}</td>
+                            <td>
+                                <x-ui.badge :type="$teacher->user->is_active ? 'active' : 'inactive'">
+                                    {{ $teacher->user->is_active ? 'Aktif' : 'Nonaktif' }}
+                                </x-ui.badge>
+                            </td>
+                            <td>
+                                @if ($teacher->user->profile_picture)
                                     <div class="profile-pic-box rounded-circle">
                                         <a href="{{ asset('storage/' . $teacher->user->profile_picture) }}" target="_blank">
-                                            <div class="text-center">
-                                                <img src="{{ asset('storage/' . $teacher->user->profile_picture) }}" alt="Profile"
-                                                    class="img-fluid">
-                                            </div>
+                                            <img src="{{ asset('storage/' . $teacher->user->profile_picture) }}" alt="Profile" class="img-fluid">
                                         </a>
                                     </div>
-                                </td>
-                            @else
-                                <td>
-                                    <p class="text-danger">Tidak Ada Foto</p>
-                                </td>
-                            @endif
-
+                                @else
+                                    <span class="text-danger">Tidak Ada Foto</span>
+                                @endif
+                            </td>
                             <td>
-                                <a href="{{ route('dashboard.teachers.show', $teacher->employee_number) }}"
-                                    class="btn btn-info btn-sm my-2 btn-action">
-                                    <img src="/img/eye.png" alt="Show" class="icon">
-                                </a>
-                                <a href="{{ route('dashboard.teachers.edit', $teacher->employee_number) }}"
-                                    class="btn btn-warning btn-sm my-2 btn-action">
-                                    <img src="/img/edit.png" alt="Edit" class="icon">
-                                </a>
-                                <form action="{{ route('dashboard.teachers.destroy', $teacher->employee_number) }}" method="POST"
-                                    class="d-inline-block">
-                                    @method('delete')
-                                    @csrf
-                                    <button type="submit" class="btn btn-danger btn-sm my-2 btn-action btn-delete">
-                                        <img src="/img/delete.png" alt="Delete" class="icon">
-                                    </button>
-                                </form>
+                                <x-tables.actions 
+                                    :showRoute="route('dashboard.teachers.show', $teacher)"
+                                    :editRoute="route('dashboard.teachers.edit', $teacher)"
+                                    :deleteRoute="route('dashboard.teachers.destroy', $teacher)"
+                                    deleteConfirm="Apakah Anda yakin ingin menghapus guru ini?"
+                                />
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
-    @endif
-
-    @if (session()->has('sAError'))
-        @php
-            Alert::error('Peringatan', session('sAError'));
-        @endphp
+        
+        {{ $teachers->links() }}
     @endif
 @endsection

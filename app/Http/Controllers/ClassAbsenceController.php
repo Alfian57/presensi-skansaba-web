@@ -3,16 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Exports\SkippingClassExport;
+use App\Http\Controllers\Traits\HandlesAlerts;
 use App\Models\ClassAbsence;
 use App\Models\Schedule;
 use App\Models\Student;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
-use RealRashid\SweetAlert\Facades\Alert;
 
 class ClassAbsenceController extends Controller
 {
+    use HandlesAlerts;
+
     /**
      * Display a listing of class absences.
      */
@@ -20,29 +22,23 @@ class ClassAbsenceController extends Controller
     {
         $query = ClassAbsence::with(['student.user', 'student.classroom', 'schedule.subject', 'schedule.teacher.user']);
 
-        // Filter by date
         if ($request->filled('date')) {
             $query->whereDate('created_at', $request->date);
         } else {
-            // Default to today
             $query->whereDate('created_at', Carbon::today());
         }
 
-        // Filter by classroom
         if ($request->filled('classroom_id')) {
-            $query->whereHas('student', function ($q) use ($request) {
-                $q->where('classroom_id', $request->classroom_id);
-            });
+            $query->whereHas('student', fn($q) => $q->where('classroom_id', $request->classroom_id));
         }
 
-        // Filter by student
         if ($request->filled('student_id')) {
             $query->where('student_id', $request->student_id);
         }
 
-        $absences = $query->latest()->paginate(20);
+        $skippingClasses = $query->latest()->paginate(20);
 
-        return view('class-absences.index', compact('absences'));
+        return view('class-absences.index', compact('skippingClasses'));
     }
 
     /**
@@ -72,12 +68,11 @@ class ClassAbsenceController extends Controller
 
         try {
             ClassAbsence::create($validated);
-
-            Alert::success('Berhasil', 'Data bolos pelajaran berhasil ditambahkan.');
+            $this->alertSuccess('Data bolos pelajaran berhasil ditambahkan.');
 
             return redirect()->route('dashboard.class-absences.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            $this->alertException($e);
 
             return back()->withInput();
         }
@@ -111,12 +106,11 @@ class ClassAbsenceController extends Controller
 
         try {
             $classAbsence->update($validated);
-
-            Alert::success('Berhasil', 'Data bolos pelajaran berhasil diperbarui.');
+            $this->alertSuccess('Data bolos pelajaran berhasil diperbarui.');
 
             return redirect()->route('dashboard.class-absences.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            $this->alertException($e);
 
             return back()->withInput();
         }
@@ -129,12 +123,11 @@ class ClassAbsenceController extends Controller
     {
         try {
             $classAbsence->delete();
-
-            Alert::success('Berhasil', 'Data bolos pelajaran berhasil dihapus.');
+            $this->alertSuccess('Data bolos pelajaran berhasil dihapus.');
 
             return redirect()->route('dashboard.class-absences.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            $this->alertException($e);
 
             return back();
         }
@@ -147,7 +140,6 @@ class ClassAbsenceController extends Controller
     {
         $date = $request->filled('date') ? $request->date : Carbon::today()->toDateString();
         $classroomId = $request->get('classroom_id');
-
         $fileName = "Bolos_Pelajaran_{$date}.xlsx";
 
         return Excel::download(new SkippingClassExport($date, $classroomId), $fileName);

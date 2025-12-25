@@ -17,6 +17,7 @@ class ClassroomService
             'grade_level' => $data['grade_level'],
             'major' => $data['major'] ?? null,
             'class_number' => $data['class_number'],
+            'capacity' => $data['capacity'] ?? 40,
         ];
 
         if (array_key_exists('is_active', $data)) {
@@ -35,6 +36,7 @@ class ClassroomService
             'grade_level' => $data['grade_level'] ?? $classroom->grade_level,
             'major' => $data['major'] ?? $classroom->major,
             'class_number' => $data['class_number'] ?? $classroom->class_number,
+            'capacity' => $data['capacity'] ?? $classroom->capacity,
             'is_active' => $data['is_active'] ?? $classroom->is_active,
         ];
         if (!array_key_exists('is_active', $data)) {

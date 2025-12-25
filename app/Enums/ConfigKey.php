@@ -15,6 +15,7 @@ enum ConfigKey: string
     case SCHOOL_ADDRESS = 'school_address';
     case SCHOOL_PHONE = 'school_phone';
     case ACADEMIC_YEAR = 'academic_year';
+    case CURRENT_SEMESTER = 'current_semester';
 
     public function label(): string
     {
@@ -30,6 +31,7 @@ enum ConfigKey: string
             self::SCHOOL_ADDRESS => 'Alamat Sekolah',
             self::SCHOOL_PHONE => 'Telepon Sekolah',
             self::ACADEMIC_YEAR => 'Tahun Ajaran',
+            self::CURRENT_SEMESTER => 'Semester Saat Ini',
         };
     }
 
@@ -47,6 +49,7 @@ enum ConfigKey: string
             self::SCHOOL_ADDRESS => 'Alamat lengkap sekolah',
             self::SCHOOL_PHONE => 'Nomor telepon sekolah',
             self::ACADEMIC_YEAR => 'Tahun ajaran saat ini (format: 2024/2025)',
+            self::CURRENT_SEMESTER => 'Semester aktif saat ini (1 = Ganjil, 2 = Genap)',
         };
     }
 
@@ -64,6 +67,7 @@ enum ConfigKey: string
             self::SCHOOL_ADDRESS => '',
             self::SCHOOL_PHONE => '',
             self::ACADEMIC_YEAR => '2024/2025',
+            self::CURRENT_SEMESTER => '1',
         };
     }
 

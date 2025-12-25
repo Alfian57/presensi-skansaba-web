@@ -3,20 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Exports\TeacherExport;
+use App\Http\Controllers\Traits\HandlesAlerts;
 use App\Http\Requests\Teacher\StoreTeacherRequest;
 use App\Http\Requests\Teacher\UpdateTeacherRequest;
 use App\Models\Teacher;
 use App\Services\TeacherService;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
-use RealRashid\SweetAlert\Facades\Alert;
 
 class TeacherController extends Controller
 {
+    use HandlesAlerts;
+
     public function __construct(
         private TeacherService $teacherService
-    ) {
-    }
+    ) {}
 
     /**
      * Display a listing of teachers.
@@ -25,14 +26,11 @@ class TeacherController extends Controller
     {
         $query = Teacher::with(['user']);
 
-        // Search by employee number or name
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('employee_number', 'like', "%{$search}%")
-                    ->orWhereHas('user', function ($q2) use ($search) {
-                        $q2->where('name', 'like', "%{$search}%");
-                    });
+                $q->where('nip', 'like', "%{$search}%")
+                    ->orWhereHas('user', fn($q2) => $q2->where('name', 'like', "%{$search}%"));
             });
         }
 
@@ -56,12 +54,11 @@ class TeacherController extends Controller
     {
         try {
             $teacher = $this->teacherService->create($request->validated());
-
-            Alert::success('Berhasil', "Guru {$teacher->user->name} berhasil ditambahkan.");
+            $this->alertSuccess("Guru {$teacher->user->name} berhasil ditambahkan.");
 
             return redirect()->route('dashboard.teachers.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back()->withInput();
         }
@@ -94,12 +91,11 @@ class TeacherController extends Controller
     {
         try {
             $teacher = $this->teacherService->update($teacher, $request->validated());
-
-            Alert::success('Berhasil', "Data guru {$teacher->user->name} berhasil diperbarui.");
+            $this->alertSuccess("Data guru {$teacher->user->name} berhasil diperbarui.");
 
             return redirect()->route('dashboard.teachers.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back()->withInput();
         }
@@ -111,21 +107,19 @@ class TeacherController extends Controller
     public function destroy(Teacher $teacher)
     {
         try {
-            // Check if teacher has schedules
             if ($teacher->schedules()->count() > 0) {
-                Alert::warning('Gagal', 'Guru tidak dapat dihapus karena masih memiliki jadwal mengajar.');
+                $this->alertWarning('Guru tidak dapat dihapus karena masih memiliki jadwal mengajar.');
 
                 return back();
             }
 
             $name = $teacher->user->name;
             $this->teacherService->delete($teacher);
-
-            Alert::success('Berhasil', "Guru {$name} berhasil dihapus.");
+            $this->alertSuccess("Guru {$name} berhasil dihapus.");
 
             return redirect()->route('dashboard.teachers.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back();
         }
@@ -137,14 +131,13 @@ class TeacherController extends Controller
     public function resetPassword(Teacher $teacher)
     {
         try {
-            $newPassword = 'password'; // Default password
+            $newPassword = 'password';
             $this->teacherService->resetPassword($teacher, $newPassword);
-
-            Alert::success('Berhasil', "Password guru {$teacher->user->name} berhasil direset ke: {$newPassword}");
+            $this->alertSuccess("Password guru {$teacher->user->name} berhasil direset ke: {$newPassword}");
 
             return back();
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back();
         }

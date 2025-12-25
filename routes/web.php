@@ -11,7 +11,9 @@ use App\Http\Controllers\OtherDataController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicAttendanceController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\SemesterTransitionController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\UserController;
@@ -37,16 +39,16 @@ Route::middleware('guest')->prefix('auth')->name('auth.')->group(function () {
     Route::post('/login', [AuthController::class, 'authenticate'])->name('attempt');
 });
 
-// Admin panel routes (for admin and teacher)
-Route::prefix('dashboard')->middleware(['auth', 'role:admin,teacher'])->name('dashboard.')->group(function () {
+// Dashboard routes (for all authenticated users)
+Route::prefix('dashboard')->middleware(['auth'])->name('dashboard.')->group(function () {
 
     // Authentication
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Dashboard home
+    // Dashboard home - accessible by all roles
     Route::get('/', [DashboardController::class, 'index'])->name('home');
 
-    // Profile management
+    // Profile management - accessible by all roles
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');
         Route::put('/', [ProfileController::class, 'update'])->name('update');
@@ -55,42 +57,62 @@ Route::prefix('dashboard')->middleware(['auth', 'role:admin,teacher'])->name('da
         Route::delete('/photo', [ProfileController::class, 'deletePhoto'])->name('photo.delete');
     });
 
-    // Public Display - Protected for authenticated users
-    Route::prefix('display')->name('display.')->group(function () {
-        Route::get('/attendance', [PublicAttendanceController::class, 'displayToday'])->name('attendance.today');
-        Route::get('/attendance/classroom/{classroom}', [PublicAttendanceController::class, 'displayClassroom'])->name('attendance.classroom');
+    // ========================================
+    // STUDENT ROUTES
+    // ========================================
+    Route::middleware('role:student')->prefix('student')->name('student.')->group(function () {
+        // Student dashboard
+        Route::get('/', [StudentDashboardController::class, 'index'])->name('home');
+        
+        // View own attendance
+        Route::get('/attendance', [StudentDashboardController::class, 'myAttendance'])->name('attendance');
+        
+        // View class schedule
+        Route::get('/schedule', [StudentDashboardController::class, 'mySchedule'])->name('schedule');
     });
 
-    // Attendance management (admin & teacher can view/edit)
-    Route::prefix('attendances')->name('attendances.')->group(function () {
-        Route::get('/', [AttendanceController::class, 'index'])->name('index');
-        Route::get('/date/{date}', [AttendanceController::class, 'byDate'])->name('by-date');
-        Route::get('/student/{student}', [AttendanceController::class, 'byStudent'])->name('by-student');
-        Route::get('/classroom/{classroom}', [AttendanceController::class, 'byClassroom'])->name('by-classroom');
-        Route::get('/{attendance}/edit', [AttendanceController::class, 'edit'])->name('edit');
-        Route::put('/{attendance}', [AttendanceController::class, 'update'])->name('update');
+    // ========================================
+    // TEACHER & ADMIN ROUTES
+    // ========================================
+    Route::middleware('role:admin|teacher')->group(function () {
 
-        // Recap/Reports
-        Route::get('/recap/student', [AttendanceController::class, 'recapStudent'])->name('recap.student');
-        Route::get('/recap/classroom', [AttendanceController::class, 'recapClassroom'])->name('recap.classroom');
-        Route::get('/recap/overall', [AttendanceController::class, 'recapOverall'])->name('recap.overall');
+        // Public Display - Protected for authenticated users
+        Route::prefix('display')->name('display.')->group(function () {
+            Route::get('/attendance', [PublicAttendanceController::class, 'displayToday'])->name('attendance.today');
+            Route::get('/attendance/classroom/{classroom}', [PublicAttendanceController::class, 'displayClassroom'])->name('attendance.classroom');
+        });
 
-        // Export
-        Route::get('/export', [AttendanceController::class, 'export'])->name('export');
-    });
+        // Attendance management (admin & teacher can view)
+        Route::prefix('attendances')->name('attendances.')->group(function () {
+            Route::get('/', [AttendanceController::class, 'index'])->name('index');
+            Route::get('/date/{date}', [AttendanceController::class, 'byDate'])->name('by-date');
+            Route::get('/student/{student}', [AttendanceController::class, 'byStudent'])->name('by-student');
+            Route::get('/classroom/{classroom}', [AttendanceController::class, 'byClassroom'])->name('by-classroom');
+            Route::get('/{attendance}/edit', [AttendanceController::class, 'edit'])->name('edit');
+            Route::put('/{attendance}', [AttendanceController::class, 'update'])->name('update');
 
-    // Class absences (skipping class / sakit / izin)
-    Route::resource('class-absences', ClassAbsenceController::class)
-        ->except(['show'])
-        ->names('class-absences');
-    Route::get('class-absences/export', [ClassAbsenceController::class, 'export'])->name('class-absences.export');
+            // Recap/Reports
+            Route::get('/recap/student', [AttendanceController::class, 'recapStudent'])->name('recap.student');
+            Route::get('/recap/classroom', [AttendanceController::class, 'recapClassroom'])->name('recap.classroom');
+            Route::get('/recap/overall', [AttendanceController::class, 'recapOverall'])->name('recap.overall');
 
-    // Teacher's own schedules
-    Route::middleware('role:teacher')->group(function () {
+            // Export
+            Route::get('/export', [AttendanceController::class, 'export'])->name('export');
+        });
+
+        // Class absences (skipping class / sakit / izin)
+        Route::resource('class-absences', ClassAbsenceController::class)
+            ->except(['show'])
+            ->names('class-absences');
+        Route::get('class-absences/export', [ClassAbsenceController::class, 'export'])->name('class-absences.export');
+
+        // Teacher's own schedules
         Route::get('/my-schedules', [ScheduleController::class, 'mySchedules'])->name('schedules.mine');
     });
 
-    // Admin-only routes
+    // ========================================
+    // ADMIN ONLY ROUTES
+    // ========================================
     Route::middleware('role:admin')->group(function () {
 
         // Classrooms management
@@ -129,6 +151,14 @@ Route::prefix('dashboard')->middleware(['auth', 'role:admin,teacher'])->name('da
             Route::put('/', [ConfigController::class, 'update'])->name('update');
             Route::post('/qr-refresh', [ConfigController::class, 'refreshQR'])->name('qr.refresh');
             Route::get('/qr-display', [ConfigController::class, 'displayQR'])->name('qr.display');
+        });
+
+        // Semester Transition
+        Route::prefix('semester-transition')->name('semester-transition.')->group(function () {
+            Route::get('/', [SemesterTransitionController::class, 'index'])->name('index');
+            Route::post('/transition', [SemesterTransitionController::class, 'transitionSemester'])->name('transition');
+            Route::post('/promote', [SemesterTransitionController::class, 'promoteStudents'])->name('promote');
+            Route::post('/copy-schedules', [SemesterTransitionController::class, 'copySchedules'])->name('copy-schedules');
         });
 
         // Active device management

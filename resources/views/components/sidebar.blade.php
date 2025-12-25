@@ -18,8 +18,10 @@
                             <span class="user-level">
                                 @if (Auth::check() && Auth::user()->hasRole('admin'))
                                     Administrator
-                                @elseif (Auth::check())
+                                @elseif (Auth::check() && Auth::user()->hasRole('teacher'))
                                     Guru
+                                @elseif (Auth::check() && Auth::user()->hasRole('student'))
+                                    Siswa
                                 @else
                                     Guest
                                 @endif
@@ -31,11 +33,6 @@
 
                     <div class="collapse in" id="collapseExample">
                         <ul class="nav">
-                            {{-- <li>
-                                <a href="#" data-toggle="modal" data-target="#pengaturanAkun" class="collapsed">
-                                    <span class="link-collapse">Pengaturan Akun</span>
-                                </a>
-                            </li> --}}
                             <li>
                                 <a href="{{ route('dashboard.profile.edit') }}" class="collapsed">
                                     <span class="link-collapse">Ganti Password</span>
@@ -54,66 +51,125 @@
                 </div>
             </div>
             <ul class="nav nav-primary">
-                {{-- Dashboard --}}
-                <li class="nav-item {{ Request::routeIs('dashboard.home') ? 'active' : '' }}">
-                    <a href="{{ route('dashboard.home') }}">
-                        <i class="fas fa-home"></i>
-                        <p class="ms-3">Dashboard</p>
-                    </a>
-                </li>
 
-                {{-- SECTION: PRESENSI --}}
-                <li class="nav-section">
-                    <span class="sidebar-mini-icon">
-                        <i class="fa fa-ellipsis-h"></i>
-                    </span>
-                    <h4 class="text-section">Presensi</h4>
-                </li>
+                {{-- ========================================= --}}
+                {{-- STUDENT MENU --}}
+                {{-- ========================================= --}}
+                @if (Auth::user()->hasRole('student'))
+                    <li class="nav-item {{ Request::routeIs('dashboard.student.home') ? 'active' : '' }}">
+                        <a href="{{ route('dashboard.student.home') }}">
+                            <i class="fas fa-home"></i>
+                            <p class="ms-3">Dashboard</p>
+                        </a>
+                    </li>
 
-                <li
-                    class="nav-item {{ Request::routeIs('dashboard.attendances.*') && !Request::routeIs('dashboard.attendances.recap.*') ? 'active' : '' }}">
-                    <a href="{{ route('dashboard.attendances.index') }}">
-                        <i class="fas fa-clipboard-check"></i>
-                        <p class="ms-3">Data Presensi</p>
-                    </a>
-                </li>
+                    <li class="nav-section">
+                        <span class="sidebar-mini-icon">
+                            <i class="fa fa-ellipsis-h"></i>
+                        </span>
+                        <h4 class="text-section">Data Saya</h4>
+                    </li>
 
-                <li class="nav-item {{ Request::routeIs('dashboard.class-absences.*') ? 'active' : '' }}">
-                    <a href="{{ route('dashboard.class-absences.index') }}">
-                        <i class="fas fa-user-times"></i>
-                        <p class="ms-3">Bolos Pelajaran</p>
-                    </a>
-                </li>
+                    <li class="nav-item {{ Request::routeIs('dashboard.student.attendance') ? 'active' : '' }}">
+                        <a href="{{ route('dashboard.student.attendance') }}">
+                            <i class="fas fa-clipboard-check"></i>
+                            <p class="ms-3">Riwayat Presensi</p>
+                        </a>
+                    </li>
 
-                <li class="nav-item {{ Request::routeIs('dashboard.attendances.recap.*') ? 'active' : '' }}">
-                    <a data-toggle="collapse" href="#recapMenu"
-                        class="{{ Request::routeIs('dashboard.attendances.recap.*') ? '' : 'collapsed' }}"
-                        aria-expanded="{{ Request::routeIs('dashboard.attendances.recap.*') ? 'true' : 'false' }}">
-                        <i class="fas fa-chart-bar"></i>
-                        <p class="ms-3">Rekap Presensi</p>
-                        <span class="caret"></span>
-                    </a>
-                    <div class="collapse {{ Request::routeIs('dashboard.attendances.recap.*') ? 'show' : '' }}"
-                        id="recapMenu">
-                        <ul class="nav nav-collapse">
-                            <li class="{{ Request::routeIs('dashboard.attendances.recap.student') ? 'active' : '' }}">
-                                <a href="{{ route('dashboard.attendances.recap.student') }}">
-                                    <i class="fas fa-user-check"></i>
-                                    <span class="sub-item">Rekap per Siswa</span>
-                                </a>
-                            </li>
-                            <li class="{{ Request::routeIs('dashboard.attendances.recap.classroom') ? 'active' : '' }}">
-                                <a href="{{ route('dashboard.attendances.recap.classroom') }}">
-                                    <i class="fas fa-users"></i>
-                                    <span class="sub-item">Rekap per Kelas</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
+                    <li class="nav-item {{ Request::routeIs('dashboard.student.schedule') ? 'active' : '' }}">
+                        <a href="{{ route('dashboard.student.schedule') }}">
+                            <i class="fas fa-calendar-alt"></i>
+                            <p class="ms-3">Jadwal Pelajaran</p>
+                        </a>
+                    </li>
+                @endif
 
+                {{-- ========================================= --}}
+                {{-- TEACHER & ADMIN MENU --}}
+                {{-- ========================================= --}}
+                @if (Auth::user()->hasAnyRole(['admin', 'teacher']))
+                    {{-- Dashboard --}}
+                    <li class="nav-item {{ Request::routeIs('dashboard.home') ? 'active' : '' }}">
+                        <a href="{{ route('dashboard.home') }}">
+                            <i class="fas fa-home"></i>
+                            <p class="ms-3">Dashboard</p>
+                        </a>
+                    </li>
+
+                    {{-- SECTION: PRESENSI --}}
+                    <li class="nav-section">
+                        <span class="sidebar-mini-icon">
+                            <i class="fa fa-ellipsis-h"></i>
+                        </span>
+                        <h4 class="text-section">Presensi</h4>
+                    </li>
+
+                    <li
+                        class="nav-item {{ Request::routeIs('dashboard.attendances.*') && !Request::routeIs('dashboard.attendances.recap.*') ? 'active' : '' }}">
+                        <a href="{{ route('dashboard.attendances.index') }}">
+                            <i class="fas fa-clipboard-check"></i>
+                            <p class="ms-3">Data Presensi</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item {{ Request::routeIs('dashboard.class-absences.*') ? 'active' : '' }}">
+                        <a href="{{ route('dashboard.class-absences.index') }}">
+                            <i class="fas fa-user-times"></i>
+                            <p class="ms-3">Bolos Pelajaran</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item {{ Request::routeIs('dashboard.attendances.recap.*') ? 'active' : '' }}">
+                        <a data-toggle="collapse" href="#recapMenu"
+                            class="{{ Request::routeIs('dashboard.attendances.recap.*') ? '' : 'collapsed' }}"
+                            aria-expanded="{{ Request::routeIs('dashboard.attendances.recap.*') ? 'true' : 'false' }}">
+                            <i class="fas fa-chart-bar"></i>
+                            <p class="ms-3">Rekap Presensi</p>
+                            <span class="caret"></span>
+                        </a>
+                        <div class="collapse {{ Request::routeIs('dashboard.attendances.recap.*') ? 'show' : '' }}"
+                            id="recapMenu">
+                            <ul class="nav nav-collapse">
+                                <li class="{{ Request::routeIs('dashboard.attendances.recap.student') ? 'active' : '' }}">
+                                    <a href="{{ route('dashboard.attendances.recap.student') }}">
+                                        <i class="fas fa-user-check"></i>
+                                        <span class="sub-item">Rekap per Siswa</span>
+                                    </a>
+                                </li>
+                                <li class="{{ Request::routeIs('dashboard.attendances.recap.classroom') ? 'active' : '' }}">
+                                    <a href="{{ route('dashboard.attendances.recap.classroom') }}">
+                                        <i class="fas fa-users"></i>
+                                        <span class="sub-item">Rekap per Kelas</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    {{-- Teacher's own schedules --}}
+                    @if (Auth::user()->hasRole('teacher'))
+                        <li class="nav-section">
+                            <span class="sidebar-mini-icon">
+                                <i class="fa fa-ellipsis-h"></i>
+                            </span>
+                            <h4 class="text-section">Jadwal</h4>
+                        </li>
+
+                        <li class="nav-item {{ Request::routeIs('dashboard.schedules.mine') ? 'active' : '' }}">
+                            <a href="{{ route('dashboard.schedules.mine') }}">
+                                <i class="fas fa-calendar-check"></i>
+                                <p class="ms-3">Jadwal Saya</p>
+                            </a>
+                        </li>
+                    @endif
+                @endif
+
+                {{-- ========================================= --}}
+                {{-- ADMIN ONLY MENU --}}
+                {{-- ========================================= --}}
                 @if (Auth::user()->hasRole('admin'))
-                    {{-- SECTION: DATA MASTER (Admin Only) --}}
+                    {{-- SECTION: DATA MASTER --}}
                     <li class="nav-section">
                         <span class="sidebar-mini-icon">
                             <i class="fa fa-ellipsis-h"></i>
@@ -163,7 +219,7 @@
                         </a>
                     </li>
 
-                    {{-- SECTION: MANAJEMEN PENGGUNA (Admin Only) --}}
+                    {{-- SECTION: MANAJEMEN PENGGUNA --}}
                     <li class="nav-section">
                         <span class="sidebar-mini-icon">
                             <i class="fa fa-ellipsis-h"></i>
@@ -192,12 +248,19 @@
                         </a>
                     </li>
 
-                    {{-- SECTION: SISTEM (Admin Only) --}}
+                    {{-- SECTION: SISTEM --}}
                     <li class="nav-section">
                         <span class="sidebar-mini-icon">
                             <i class="fa fa-ellipsis-h"></i>
                         </span>
                         <h4 class="text-section">Sistem</h4>
+                    </li>
+
+                    <li class="nav-item {{ Request::routeIs('dashboard.config.*') ? 'active' : '' }}">
+                        <a href="{{ route('dashboard.config.index') }}">
+                            <i class="fas fa-cog"></i>
+                            <p class="ms-3">Konfigurasi</p>
+                        </a>
                     </li>
 
                     <li class="nav-item {{ Request::routeIs('dashboard.devices.*') ? 'active' : '' }}">
@@ -206,19 +269,11 @@
                             <p class="ms-3">Device Aktif</p>
                         </a>
                     </li>
-                @else
-                    {{-- SECTION: GURU --}}
-                    <li class="nav-section">
-                        <span class="sidebar-mini-icon">
-                            <i class="fa fa-ellipsis-h"></i>
-                        </span>
-                        <h4 class="text-section">Jadwal</h4>
-                    </li>
 
-                    <li class="nav-item {{ Request::routeIs('dashboard.schedules.mine') ? 'active' : '' }}">
-                        <a href="{{ route('dashboard.schedules.mine') }}">
-                            <i class="fas fa-calendar-check"></i>
-                            <p class="ms-3">Jadwal Saya</p>
+                    <li class="nav-item {{ Request::routeIs('dashboard.semester-transition.*') ? 'active' : '' }}">
+                        <a href="{{ route('dashboard.semester-transition.index') }}">
+                            <i class="fas fa-sync-alt"></i>
+                            <p class="ms-3">Pergantian Semester</p>
                         </a>
                     </li>
                 @endif

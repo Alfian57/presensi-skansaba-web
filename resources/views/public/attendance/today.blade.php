@@ -124,7 +124,7 @@
                                 </div>
                             </div>
                             <div class="card-footer bg-light border-0">
-                                <a href="{{ route('dashboard.display.attendance.classroom', $classroom->id) }}"
+                                <a href="{{ route('dashboard.display.attendance.classroom', $classroom) }}"
                                     class="btn btn-sm btn-outline-primary w-100">
                                     <i class="fas fa-eye me-1"></i>Lihat Detail
                                 </a>

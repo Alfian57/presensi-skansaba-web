@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Presensi Siswa | {{ $title ?? 'Dashboard' }}</title>
+    <title>{{ config('app.name') }} | {{ $title ?? 'Dashboard' }}</title>
     <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
     <link rel="icon" href="/img/icon.ico" type="image/x-icon" />
 
@@ -89,7 +89,7 @@
             <footer class="footer">
                 <div class="container">
                     <div class="copyright ml-auto">
-                        &copy; <?php echo date('Y'); ?> Presensi Siswa SMKN 1 BANTUL (2022)
+                        &copy; {{ date('Y') }} {{ config('app.name') }}
                     </div>
                 </div>
             </footer>

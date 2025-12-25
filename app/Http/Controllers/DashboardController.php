@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AttendanceStatus;
 use App\Models\Attendance;
 use App\Models\ClassAbsence;
 use App\Models\Classroom;
@@ -19,6 +20,12 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
+        
+        // Redirect students to their own dashboard
+        if ($user->hasRole('student')) {
+            return redirect()->route('dashboard.student.home');
+        }
+        
         $title = 'Dashboard';
         $today = Carbon::today();
 
@@ -34,11 +41,11 @@ class DashboardController extends Controller
         $todayAttendances = Attendance::where('date', $today)->get();
         $attendanceStats = [
             'total' => $todayAttendances->count(),
-            'present' => $todayAttendances->where('status', 'present')->count(),
-            'late' => $todayAttendances->where('status', 'late')->count(),
-            'sick' => $todayAttendances->where('status', 'sick')->count(),
-            'permission' => $todayAttendances->where('status', 'permission')->count(),
-            'absent' => $todayAttendances->where('status', 'absent')->count(),
+            'present' => $todayAttendances->where('status', AttendanceStatus::PRESENT)->count(),
+            'late' => $todayAttendances->where('status', AttendanceStatus::LATE)->count(),
+            'sick' => $todayAttendances->where('status', AttendanceStatus::SICK)->count(),
+            'permission' => $todayAttendances->where('status', AttendanceStatus::PERMISSION)->count(),
+            'absent' => $todayAttendances->where('status', AttendanceStatus::ABSENT)->count(),
         ];
 
         // Calculate attendance percentage

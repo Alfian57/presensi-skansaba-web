@@ -3,11 +3,11 @@
 @section('content')
     @include('components.breadcrumb')
 
-    <h2 class="text-center mt-3">Admin</h2>
-
-    <div class="text-end mb-3">
-        <a href="{{ route('dashboard.admins.create') }}" class="btn btn-success btn-sm">+ Tambah Admin</a>
-    </div>
+    <x-ui.page-header 
+        title="Admin" 
+        :createRoute="route('dashboard.admins.create')" 
+        createLabel="+ Tambah Admin"
+    />
 
     @if ($users->isEmpty())
         @include('components.empty-data')
@@ -20,6 +20,7 @@
                         <th>Nama</th>
                         <th>Email</th>
                         <th>Username</th>
+                        <th>Status</th>
                         <th class="action">Aksi</th>
                     </tr>
                 </thead>
@@ -31,18 +32,16 @@
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->username }}</td>
                             <td>
-                                <a href="{{ route('dashboard.admins.edit', $user->id) }}"
-                                    class="btn btn-warning btn-sm my-2 btn-action">
-                                    <img src="/img/edit.png" alt="Edit" class="icon">
-                                </a>
-                                <form action="{{ route('dashboard.admins.destroy', $user->id) }}" method="POST"
-                                    class="d-inline-block">
-                                    @method('delete')
-                                    @csrf
-                                    <button type="submit" class="btn btn-danger btn-sm my-2 btn-action btn-delete">
-                                        <img src="/img/delete.png" alt="Delete" class="icon">
-                                    </button>
-                                </form>
+                                <x-ui.badge :type="$user->is_active ? 'active' : 'inactive'">
+                                    {{ $user->is_active ? 'Aktif' : 'Nonaktif' }}
+                                </x-ui.badge>
+                            </td>
+                            <td>
+                                <x-tables.actions 
+                                    :editRoute="route('dashboard.admins.edit', $user)"
+                                    :deleteRoute="route('dashboard.admins.destroy', $user)"
+                                    deleteConfirm="Apakah Anda yakin ingin menghapus admin ini?"
+                                />
                             </td>
                         </tr>
                     @endforeach

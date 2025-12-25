@@ -26,6 +26,7 @@ class Schedule extends Model
         'start_time' => 'datetime',
         'end_time' => 'datetime',
         'semester' => 'integer',
+        'day' => Day::class,
     ];
 
     public function classroom()

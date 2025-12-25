@@ -89,6 +89,13 @@ class AttendanceConfigSeeder extends Seeder
                 'description' => ConfigKey::ACADEMIC_YEAR->description(),
                 'is_public' => true,
             ],
+            [
+                'key' => ConfigKey::CURRENT_SEMESTER->value,
+                'value' => '1',
+                'type' => 'integer',
+                'description' => ConfigKey::CURRENT_SEMESTER->description(),
+                'is_public' => true,
+            ],
         ];
 
         foreach ($configs as $config) {

@@ -106,7 +106,7 @@
                     @foreach ($days as $en => $id_day)
                         <div class="form-check ms-3">
                             <input class="form-check-input" value="{{ $en }}" type="radio" name="day" 
-                                id="day_{{ $en }}" {{ old('day', $schedule->day) == $en ? 'checked' : '' }}>
+                                id="day_{{ $en }}" {{ old('day', $schedule->day instanceof \App\Enums\Day ? $schedule->day->value : $schedule->day) == $en ? 'checked' : '' }}>
                             <label class="form-check-label" for="day_{{ $en }}">
                                 {{ $id_day }}
                             </label>

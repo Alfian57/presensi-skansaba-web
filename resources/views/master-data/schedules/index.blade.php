@@ -33,7 +33,7 @@
                             <td>{{ $schedule->teacher->name }}</td>
                             <td>{{ $schedule->subject->name }}</td>
                             <td>{{ $schedule->classroom->name }}</td>
-                            <td>{{ ucwords($schedule->day) }}</td>
+                            <td>{{ ucwords($schedule->day->value ?? $schedule->day) }}</td>
                             <td>{{ $schedule->start_time }}</td>
                             <td>{{ $schedule->end_time }}</td>
                             <td>

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\HandlesAlerts;
 use App\Models\Subject;
 use Illuminate\Http\Request;
-use RealRashid\SweetAlert\Facades\Alert;
 
 class SubjectController extends Controller
 {
+    use HandlesAlerts;
+
     /**
      * Display a listing of subjects.
      */
@@ -15,7 +17,6 @@ class SubjectController extends Controller
     {
         $query = Subject::query();
 
-        // Search by name or code
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -54,12 +55,11 @@ class SubjectController extends Controller
 
         try {
             Subject::create($request->only(['code', 'name', 'description']));
-
-            Alert::success('Berhasil', 'Mata pelajaran berhasil ditambahkan.');
+            $this->alertSuccess('Mata pelajaran berhasil ditambahkan.');
 
             return redirect()->route('dashboard.subjects.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            $this->alertException($e);
 
             return back()->withInput();
         }
@@ -89,7 +89,7 @@ class SubjectController extends Controller
     public function update(Request $request, Subject $subject)
     {
         $request->validate([
-            'code' => 'required|string|max:20|unique:subjects,code,'.$subject->id,
+            'code' => 'required|string|max:20|unique:subjects,code,' . $subject->id,
             'name' => 'required|string|max:100',
             'description' => 'nullable|string|max:500',
         ], [
@@ -100,12 +100,11 @@ class SubjectController extends Controller
 
         try {
             $subject->update($request->only(['code', 'name', 'description']));
-
-            Alert::success('Berhasil', 'Mata pelajaran berhasil diperbarui.');
+            $this->alertSuccess('Mata pelajaran berhasil diperbarui.');
 
             return redirect()->route('dashboard.subjects.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            $this->alertException($e);
 
             return back()->withInput();
         }
@@ -117,20 +116,18 @@ class SubjectController extends Controller
     public function destroy(Subject $subject)
     {
         try {
-            // Check if subject has schedules
             if ($subject->schedules()->count() > 0) {
-                Alert::warning('Gagal', 'Mata pelajaran tidak dapat dihapus karena masih digunakan dalam jadwal.');
+                $this->alertWarning('Mata pelajaran tidak dapat dihapus karena masih digunakan dalam jadwal.');
 
                 return back();
             }
 
             $subject->delete();
-
-            Alert::success('Berhasil', 'Mata pelajaran berhasil dihapus.');
+            $this->alertSuccess('Mata pelajaran berhasil dihapus.');
 
             return redirect()->route('dashboard.subjects.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            $this->alertException($e);
 
             return back();
         }

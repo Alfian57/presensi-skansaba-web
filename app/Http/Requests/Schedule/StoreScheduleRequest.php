@@ -24,7 +24,7 @@ class StoreScheduleRequest extends FormRequest
      */
     public function rules()
     {
-        $schoolDayValues = array_column(Day::schoolDays(), 'value');
+        $schoolDayValues = array_map(fn($day) => $day->value, Day::schoolDays());
 
         return [
             'classroom_id' => ['required', 'exists:classrooms,id'],
@@ -41,7 +41,7 @@ class StoreScheduleRequest extends FormRequest
 
     public function messages()
     {
-        $schoolDayValues = array_column(Day::schoolDays(), 'value');
+        $schoolDayValues = array_map(fn($day) => $day->value, Day::schoolDays());
 
         return [
             'classroom_id.required' => 'Kelas wajib dipilih.',

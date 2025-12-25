@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\HandlesAlerts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use RealRashid\SweetAlert\Facades\Alert;
 
 class ProfileController extends Controller
 {
+    use HandlesAlerts;
+
     /**
      * Show the profile edit form.
      */
@@ -28,8 +30,8 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:users,email,'.$user->id],
-            'username' => ['required', 'string', 'unique:users,username,'.$user->id],
+            'email' => ['required', 'email', 'unique:users,email,' . $user->id],
+            'username' => ['required', 'string', 'unique:users,username,' . $user->id],
         ], [
             'name.required' => 'Nama wajib diisi.',
             'email.required' => 'Email wajib diisi.',
@@ -39,8 +41,7 @@ class ProfileController extends Controller
         ]);
 
         $user->update($validated);
-
-        Alert::success('Berhasil', 'Profil berhasil diperbarui.');
+        $this->alertSuccess('Profil berhasil diperbarui.');
 
         return redirect()->route('dashboard.profile.edit');
     }
@@ -62,8 +63,8 @@ class ProfileController extends Controller
 
         $user = auth()->user();
 
-        if (! Hash::check($validated['current_password'], $user->password)) {
-            Alert::error('Gagal', 'Password lama tidak sesuai.');
+        if (!Hash::check($validated['current_password'], $user->password)) {
+            $this->alertError('Password lama tidak sesuai.');
 
             return back();
         }
@@ -72,7 +73,7 @@ class ProfileController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        Alert::success('Berhasil', 'Password berhasil diperbarui.');
+        $this->alertSuccess('Password berhasil diperbarui.');
 
         return redirect()->route('dashboard.profile.edit');
     }
@@ -83,7 +84,7 @@ class ProfileController extends Controller
     public function uploadPhoto(Request $request)
     {
         $request->validate([
-            'photo' => ['required', 'image', 'max:2048'], // 2MB
+            'photo' => ['required', 'image', 'max:2048'],
         ], [
             'photo.required' => 'Foto wajib dipilih.',
             'photo.image' => 'File harus berupa gambar.',
@@ -92,17 +93,14 @@ class ProfileController extends Controller
 
         $user = auth()->user();
 
-        // Delete old photo if exists
         if ($user->profile_picture) {
             Storage::disk('public')->delete($user->profile_picture);
         }
 
-        // Store new photo
         $path = $request->file('photo')->store('profiles', 'public');
-
         $user->update(['profile_picture' => $path]);
 
-        Alert::success('Berhasil', 'Foto profil berhasil diperbarui.');
+        $this->alertSuccess('Foto profil berhasil diperbarui.');
 
         return back();
     }
@@ -117,10 +115,9 @@ class ProfileController extends Controller
         if ($user->profile_picture) {
             Storage::disk('public')->delete($user->profile_picture);
             $user->update(['profile_picture' => null]);
-
-            Alert::success('Berhasil', 'Foto profil berhasil dihapus.');
+            $this->alertSuccess('Foto profil berhasil dihapus.');
         } else {
-            Alert::info('Info', 'Tidak ada foto profil untuk dihapus.');
+            $this->alertInfo('Tidak ada foto profil untuk dihapus.');
         }
 
         return back();

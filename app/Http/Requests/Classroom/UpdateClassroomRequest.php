@@ -24,9 +24,10 @@ class UpdateClassroomRequest extends FormRequest
     public function rules()
     {
         return [
-            'grade_level' => ['required', 'required', 'integer', 'min:10', 'max:12'],
+            'grade_level' => ['required', 'integer', 'min:10', 'max:12'],
             'major' => ['required', 'string'],
-            'class_number' => ['required', 'required', 'integer', 'min:1'],
+            'class_number' => ['required', 'integer', 'min:1'],
+            'capacity' => ['nullable', 'integer', 'min:1'],
             'is_active' => ['nullable', 'boolean'],
         ];
     }

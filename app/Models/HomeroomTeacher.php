@@ -12,6 +12,11 @@ class HomeroomTeacher extends Model
     protected $fillable = [
         'teacher_id',
         'classroom_id',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     // Relationships

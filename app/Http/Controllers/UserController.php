@@ -2,24 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\HandlesAlerts;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use RealRashid\SweetAlert\Facades\Alert;
 
 class UserController extends Controller
 {
+    use HandlesAlerts;
+
     /**
      * Display a listing of users (admin accounts).
      */
     public function index(Request $request)
     {
         $query = User::with(['roles'])
-            ->whereHas('roles', function ($q) {
-                $q->where('name', 'admin');
-            });
+            ->whereHas('roles', fn($q) => $q->where('name', 'admin'));
 
-        // Search by name, email, or username
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -73,12 +72,11 @@ class UserController extends Controller
             ]);
 
             $user->assignRole('admin');
-
-            Alert::success('Berhasil', "Admin {$user->name} berhasil ditambahkan.");
+            $this->alertSuccess("Admin {$user->name} berhasil ditambahkan.");
 
             return redirect()->route('dashboard.admins.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back()->withInput();
         }
@@ -124,12 +122,11 @@ class UserController extends Controller
 
         try {
             $admin->update($request->only(['name', 'email', 'username']));
-
-            Alert::success('Berhasil', "Data admin {$admin->name} berhasil diperbarui.");
+            $this->alertSuccess("Data admin {$admin->name} berhasil diperbarui.");
 
             return redirect()->route('dashboard.admins.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back()->withInput();
         }
@@ -141,29 +138,26 @@ class UserController extends Controller
     public function destroy(User $admin)
     {
         try {
-            // Prevent deleting yourself
             if ($admin->id === auth()->id()) {
-                Alert::warning('Gagal', 'Anda tidak dapat menghapus akun Anda sendiri.');
+                $this->alertWarning('Anda tidak dapat menghapus akun Anda sendiri.');
 
                 return back();
             }
 
-            // Prevent deleting if only one admin left
             $adminCount = User::role('admin')->count();
             if ($adminCount <= 1) {
-                Alert::warning('Gagal', 'Tidak dapat menghapus admin terakhir.');
+                $this->alertWarning('Tidak dapat menghapus admin terakhir.');
 
                 return back();
             }
 
             $name = $admin->name;
             $admin->delete();
-
-            Alert::success('Berhasil', "Admin {$name} berhasil dihapus.");
+            $this->alertSuccess("Admin {$name} berhasil dihapus.");
 
             return redirect()->route('dashboard.admins.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back();
         }
@@ -175,16 +169,13 @@ class UserController extends Controller
     public function resetPassword(User $admin)
     {
         try {
-            $newPassword = 'password'; // Default password
-            $admin->update([
-                'password' => Hash::make($newPassword),
-            ]);
-
-            Alert::success('Berhasil', "Password {$admin->name} berhasil direset ke: {$newPassword}");
+            $newPassword = 'password';
+            $admin->update(['password' => Hash::make($newPassword)]);
+            $this->alertSuccess("Password {$admin->name} berhasil direset ke: {$newPassword}");
 
             return back();
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back();
         }

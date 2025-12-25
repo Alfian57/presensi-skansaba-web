@@ -31,7 +31,7 @@ class UpdateTeacherRequest extends FormRequest
             'email' => ['sometimes', 'required', 'email', 'unique:users,email,'.$userId],
             'username' => ['nullable', 'string', 'unique:users,username,'.$userId],
             'password' => ['nullable', 'string', 'min:6'],
-            'employee_number' => ['sometimes', 'required', 'string', 'unique:teachers,employee_number,'.$teacherId],
+            'nip' => ['sometimes', 'required', 'string', 'unique:teachers,nip,'.$teacherId],
             'date_of_birth' => ['nullable', 'date'],
             'gender' => ['required', 'in:male,female'],
             'phone' => ['nullable', 'string', 'max:15'],
@@ -49,8 +49,8 @@ class UpdateTeacherRequest extends FormRequest
             'email.unique' => 'Email sudah terdaftar.',
             'username.unique' => 'Username sudah terdaftar.',
             'password.min' => 'Password minimal 6 karakter.',
-            'employee_number.required' => 'NIP/NIK wajib diisi.',
-            'employee_number.unique' => 'NIP/NIK sudah terdaftar.',
+            'nip.required' => 'NIP/NIK wajib diisi.',
+            'nip.unique' => 'NIP/NIK sudah terdaftar.',
             'gender.required' => 'Jenis kelamin wajib dipilih.',
         ];
     }

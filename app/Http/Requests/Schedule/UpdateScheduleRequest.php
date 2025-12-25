@@ -23,7 +23,7 @@ class UpdateScheduleRequest extends FormRequest
      */
     public function rules()
     {
-        $schoolDayValues = array_column(\App\Enums\Day::schoolDays(), 'value');
+        $schoolDayValues = array_map(fn($day) => $day->value, \App\Enums\Day::schoolDays());
 
         return [
             'classroom_id' => ['required', 'exists:classrooms,id'],
@@ -40,7 +40,7 @@ class UpdateScheduleRequest extends FormRequest
 
     public function messages()
     {
-        $schoolDayValues = array_column(\App\Enums\Day::schoolDays(), 'value');
+        $schoolDayValues = array_map(fn($day) => $day->value, \App\Enums\Day::schoolDays());
 
         return [
             'classroom_id.required' => 'Kelas wajib dipilih.',

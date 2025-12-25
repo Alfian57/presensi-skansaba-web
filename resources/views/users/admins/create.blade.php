@@ -3,64 +3,34 @@
 @section('content')
     @include('components.breadcrumb')
 
-    <h2 class="text-center mt-3">Tambah Admin</h2>
+    <x-ui.card title="Tambah Admin" icon="fas fa-user-shield" class="mt-3">
+        <form action="{{ route('dashboard.admins.store') }}" method="POST">
+            @csrf
 
-    <form action="{{ route('dashboard.admins.store') }}" method="POST">
-        @csrf
-        <div class="mb-3 mt-3">
-            <label for="name" class="form-label @error('name') is-invalid @enderror">Nama Admin</label>
-            <input type="text" class="form-control" name="name" id="name" placeholder="Nama" value="{{ old('name') }}"
-                required autofocus>
-            @error('name')
-                <div class="invalid-feedback">
-                    {{ $message }}
+            <div class="row">
+                <div class="col-md-6">
+                    <x-forms.input name="name" label="Nama Admin" placeholder="Nama" required />
                 </div>
-            @enderror
-        </div>
-
-        <div class="mb-3 mt-3">
-            <label for="email" class="form-label @error('email') is-invalid @enderror">Email Admin</label>
-            <input type="email" class="form-control" name="email" id="email" placeholder="Email" value="{{ old('email') }}"
-                required autofocus>
-            @error('email')
-                <div class="invalid-feedback">
-                    {{ $message }}
+                <div class="col-md-6">
+                    <x-forms.input name="email" label="Email Admin" type="email" placeholder="Email" required />
                 </div>
-            @enderror
-        </div>
+            </div>
 
-        <div class="mb-3 mt-3">
-            <label for="username" class="form-label @error('username') is-invalid @enderror">Username Admin (Tanpa
-                Spasi)</label>
-            <input type="text" class="form-control" name="username" id="username" placeholder="Username"
-                value="{{ old('username') }}" required autofocus>
-            @error('username')
-                <div class="invalid-feedback">
-                    {{ $message }}
+            <div class="row">
+                <div class="col-md-6">
+                    <x-forms.input name="username" label="Username Admin (Tanpa Spasi)" placeholder="Username" required />
                 </div>
-            @enderror
-        </div>
-
-        <div class="mb-3 mt-3">
-            <label for="password" class="form-label @error('password') is-invalid @enderror">Password</label>
-            <input type="password" class="form-control" name="password" id="password" placeholder="Password"
-                value="{{ old('password') }}" required>
-            @error('password')
-                <div class="invalid-feedback">
-                    {{ $message }}
+                <div class="col-md-6">
+                    <x-forms.input name="password" label="Password" type="password" placeholder="Password" required />
                 </div>
-            @enderror
-        </div>
+            </div>
 
-        <div class="mb-3 mt-3">
-            <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
-            <input type="password" class="form-control" name="password_confirmation" id="password_confirmation"
-                placeholder="Konfirmasi Password" required>
-        </div>
+            <x-forms.input name="password_confirmation" label="Konfirmasi Password" type="password" placeholder="Konfirmasi Password" required />
 
-        <div class="text-end">
-            <a href="{{ route('dashboard.admins.index') }}" class="btn btn-danger btn-sm mt-3">Kembali</a>
-            <button type="submit" class="btn btn-primary btn-sm mt-3">Submit</button>
-        </div>
-    </form>
+            <div class="text-end">
+                <a href="{{ route('dashboard.admins.index') }}" class="btn btn-danger btn-sm">Kembali</a>
+                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+            </div>
+        </form>
+    </x-ui.card>
 @endsection

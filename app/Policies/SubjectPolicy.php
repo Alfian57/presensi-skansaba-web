@@ -11,72 +11,42 @@ class SubjectPolicy
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can view any models.
-     *
-     * @return \Illuminate\Auth\Access\Response|bool
+     * Determine whether the user can view any subjects.
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
-        //
+        return $user->hasPermissionTo('view subjects');
     }
 
     /**
-     * Determine whether the user can view the model.
-     *
-     * @return \Illuminate\Auth\Access\Response|bool
+     * Determine whether the user can view the subject.
      */
-    public function view(User $user, Subject $subject)
+    public function view(User $user, Subject $subject): bool
     {
-        //
+        return $user->hasPermissionTo('view subjects');
     }
 
     /**
-     * Determine whether the user can create models.
-     *
-     * @return \Illuminate\Auth\Access\Response|bool
+     * Determine whether the user can create subjects.
      */
-    public function create(User $user)
+    public function create(User $user): bool
     {
-        //
+        return $user->hasPermissionTo('create subjects');
     }
 
     /**
-     * Determine whether the user can update the model.
-     *
-     * @return \Illuminate\Auth\Access\Response|bool
+     * Determine whether the user can update the subject.
      */
-    public function update(User $user, Subject $subject)
+    public function update(User $user, Subject $subject): bool
     {
-        //
+        return $user->hasPermissionTo('edit subjects');
     }
 
     /**
-     * Determine whether the user can delete the model.
-     *
-     * @return \Illuminate\Auth\Access\Response|bool
+     * Determine whether the user can delete the subject.
      */
-    public function delete(User $user, Subject $subject)
+    public function delete(User $user, Subject $subject): bool
     {
-        //
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     *
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function restore(User $user, Subject $subject)
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     *
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function forceDelete(User $user, Subject $subject)
-    {
-        //
+        return $user->hasPermissionTo('delete subjects');
     }
 }

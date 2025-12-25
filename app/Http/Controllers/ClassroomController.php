@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\HandlesAlerts;
 use App\Http\Requests\Classroom\StoreClassroomRequest;
 use App\Http\Requests\Classroom\UpdateClassroomRequest;
 use App\Models\Classroom;
 use App\Services\ClassroomService;
 use Illuminate\Http\Request;
-use RealRashid\SweetAlert\Facades\Alert;
 
 class ClassroomController extends Controller
 {
+    use HandlesAlerts;
+
     public function __construct(
         private ClassroomService $classroomService
     ) {}
@@ -22,17 +24,14 @@ class ClassroomController extends Controller
     {
         $query = Classroom::withCount('students');
 
-        // Filter by grade level
         if ($request->filled('grade_level')) {
             $query->where('grade_level', $request->grade_level);
         }
 
-        // Filter by major
         if ($request->filled('major')) {
             $query->where('major', $request->major);
         }
 
-        // Search
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
@@ -60,12 +59,11 @@ class ClassroomController extends Controller
     {
         try {
             $classroom = $this->classroomService->create($request->validated());
-
-            Alert::success('Berhasil', "Kelas {$classroom->name} berhasil ditambahkan.");
+            $this->alertSuccess("Kelas {$classroom->name} berhasil ditambahkan.");
 
             return redirect()->route('dashboard.classrooms.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back()->withInput();
         }
@@ -97,12 +95,11 @@ class ClassroomController extends Controller
     {
         try {
             $classroom = $this->classroomService->update($classroom, $request->validated());
-
-            Alert::success('Berhasil', "Kelas {$classroom->name} berhasil diperbarui.");
+            $this->alertSuccess("Kelas {$classroom->name} berhasil diperbarui.");
 
             return redirect()->route('dashboard.classrooms.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back()->withInput();
         }
@@ -114,21 +111,19 @@ class ClassroomController extends Controller
     public function destroy(Classroom $classroom)
     {
         try {
-            // Check if classroom has students
             if ($classroom->students()->count() > 0) {
-                Alert::warning('Gagal', 'Kelas tidak dapat dihapus karena masih memiliki siswa.');
+                $this->alertWarning('Kelas tidak dapat dihapus karena masih memiliki siswa.');
 
                 return back();
             }
 
             $name = $classroom->name;
             $this->classroomService->delete($classroom);
-
-            Alert::success('Berhasil', "Kelas {$name} berhasil dihapus.");
+            $this->alertSuccess("Kelas {$name} berhasil dihapus.");
 
             return redirect()->route('dashboard.classrooms.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back();
         }

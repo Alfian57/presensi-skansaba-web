@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\HandlesAlerts;
 use App\Models\AttendanceConfig;
 use App\Services\QRCodeService;
 use Illuminate\Http\Request;
-use RealRashid\SweetAlert\Facades\Alert;
 
 class ConfigController extends Controller
 {
+    use HandlesAlerts;
+
     public function __construct(
         private QRCodeService $qrCodeService
     ) {}
@@ -39,16 +41,24 @@ class ConfigController extends Controller
             'academic_year' => 'required|string|max:20',
         ]);
 
+        // Normalize time values to H:i format
+        $timeFields = ['check_in_start', 'check_in_end', 'late_threshold', 'check_out_start'];
+        foreach ($timeFields as $field) {
+            if (isset($validated[$field])) {
+                $validated[$field] = substr($validated[$field], 0, 5);
+            }
+        }
+
         try {
             foreach ($validated as $key => $value) {
                 AttendanceConfig::where('key', $key)->update(['value' => $value]);
             }
 
-            Alert::success('Berhasil', 'Konfigurasi sistem berhasil diperbarui.');
+            $this->alertSuccess('Konfigurasi sistem berhasil diperbarui.');
 
             return redirect()->route('dashboard.config.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            $this->alertException($e);
 
             return back()->withInput();
         }
@@ -66,11 +76,11 @@ class ConfigController extends Controller
             AttendanceConfig::where('key', 'qr_check_in')->update(['value' => $checkInCode]);
             AttendanceConfig::where('key', 'qr_check_out')->update(['value' => $checkOutCode]);
 
-            Alert::success('Berhasil', 'QR Code berhasil diperbarui.');
+            $this->alertSuccess('QR Code berhasil diperbarui.');
 
             return back();
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: '.$e->getMessage());
+            $this->alertException($e);
 
             return back();
         }

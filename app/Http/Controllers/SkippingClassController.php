@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\SkippingClassExport;
 use App\Helper;
+use App\Http\Controllers\Traits\HandlesAlerts;
 use App\Models\Attendance;
 use App\Models\ClassAbsence;
 use App\Models\Classroom;
@@ -11,14 +12,13 @@ use App\Models\Student;
 use App\Models\Subject;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
-use RealRashid\SweetAlert\Facades\Alert;
 
 class SkippingClassController extends Controller
 {
+    use HandlesAlerts;
+
     /**
      * Display a listing of the resource.
-     *
-     * @return \Illuminate\Contracts\View\View
      */
     public function index()
     {
@@ -28,11 +28,7 @@ class SkippingClassController extends Controller
             ->where('present_date', date('Y-m-d'))
             ->pluck('student_id');
 
-        if ($attendances->isEmpty()) {
-            $studentsId = [0];
-        } else {
-            $studentsId = Student::whereIn('id', $attendances)->pluck('id');
-        }
+        $studentsId = $attendances->isEmpty() ? [0] : Student::whereIn('id', $attendances)->pluck('id');
 
         $data = [
             'title' => 'Siswa Bolos',
@@ -44,8 +40,6 @@ class SkippingClassController extends Controller
 
     /**
      * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Contracts\View\View
      */
     public function create()
     {
@@ -64,8 +58,6 @@ class SkippingClassController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
@@ -75,17 +67,13 @@ class SkippingClassController extends Controller
         ]);
 
         ClassAbsence::create($validatedData);
-
-        Alert::success('Berhasil', 'Berhasil Menambahkan Data');
+        $this->alertSuccess('Berhasil Menambahkan Data');
 
         return redirect('/admin/skippingClass');
     }
 
     /**
      * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return void
      */
     public function show($id)
     {
@@ -94,9 +82,6 @@ class SkippingClassController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return void
      */
     public function edit($id)
     {
@@ -105,9 +90,6 @@ class SkippingClassController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param  int  $id
-     * @return void
      */
     public function update(Request $request, $id)
     {
@@ -116,25 +98,26 @@ class SkippingClassController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy($id)
     {
         ClassAbsence::destroy($id);
+        $this->alertSuccess('Data Berhasil Dihapus');
 
-        return redirect('/admin/skippingClass')->with('success', 'Data Berhasil Dihapus');
+        return redirect('/admin/skippingClass');
     }
 
+    /**
+     * Export to Excel.
+     */
     public function exportExcel()
     {
-        if (! request('grade') || ! request('date')) {
+        if (!request('grade') || !request('date')) {
             return redirect()->back();
         }
 
         $grade = Classroom::where('slug', request('grade'))->first();
-        $fileName = "Rekap Siswa Bolos Kelas $grade->name | ".request('date').'.xlsx';
+        $fileName = "Rekap Siswa Bolos Kelas {$grade->name} | " . request('date') . '.xlsx';
 
         return Excel::download(new SkippingClassExport(request('grade'), request('date')), $fileName);
     }

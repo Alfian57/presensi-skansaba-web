@@ -11,72 +11,42 @@ class HomeroomTeacherPolicy
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can view any models.
-     *
-     * @return \Illuminate\Auth\Access\Response|bool
+     * Determine whether the user can view any homeroom teachers.
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
-        //
+        return $user->hasPermissionTo('view homerooms');
     }
 
     /**
-     * Determine whether the user can view the model.
-     *
-     * @return \Illuminate\Auth\Access\Response|bool
+     * Determine whether the user can view the homeroom teacher.
      */
-    public function view(User $user, HomeroomTeacher $homeroomTeacher)
+    public function view(User $user, HomeroomTeacher $homeroomTeacher): bool
     {
-        //
+        return $user->hasPermissionTo('view homerooms');
     }
 
     /**
-     * Determine whether the user can create models.
-     *
-     * @return \Illuminate\Auth\Access\Response|bool
+     * Determine whether the user can create homeroom teachers.
      */
-    public function create(User $user)
+    public function create(User $user): bool
     {
-        //
+        return $user->hasPermissionTo('create homerooms');
     }
 
     /**
-     * Determine whether the user can update the model.
-     *
-     * @return \Illuminate\Auth\Access\Response|bool
+     * Determine whether the user can update the homeroom teacher.
      */
-    public function update(User $user, HomeroomTeacher $homeroomTeacher)
+    public function update(User $user, HomeroomTeacher $homeroomTeacher): bool
     {
-        //
+        return $user->hasPermissionTo('edit homerooms');
     }
 
     /**
-     * Determine whether the user can delete the model.
-     *
-     * @return \Illuminate\Auth\Access\Response|bool
+     * Determine whether the user can delete the homeroom teacher.
      */
-    public function delete(User $user, HomeroomTeacher $homeroomTeacher)
+    public function delete(User $user, HomeroomTeacher $homeroomTeacher): bool
     {
-        //
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     *
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function restore(User $user, HomeroomTeacher $homeroomTeacher)
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     *
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function forceDelete(User $user, HomeroomTeacher $homeroomTeacher)
-    {
-        //
+        return $user->hasPermissionTo('delete homerooms');
     }
 }

@@ -27,6 +27,7 @@ class StoreClassroomRequest extends FormRequest
             'grade_level' => ['required', 'integer', 'min:10', 'max:12'],
             'major' => ['nullable', 'string'],
             'class_number' => ['required', 'integer', 'min:1'],
+            'capacity' => ['nullable', 'integer', 'min:1'],
             'is_active' => ['nullable', 'boolean'],
         ];
     }

@@ -49,7 +49,7 @@
                             <div class="row">
                                 @if (Auth::check())
                                     <div class="img-fluid mb-3">
-                                        {!! QrCode::size(175)->generate($qr->value) !!}
+                                        {!! QrCode::size(175)->generate($checkInQR->value ?? 'NO_QR') !!}
                                     </div>
                                 @else
                                     <div class="img-fluid mb-3 position-relative">

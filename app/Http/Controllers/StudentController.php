@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\StudentExport;
+use App\Http\Controllers\Traits\HandlesAlerts;
 use App\Http\Requests\Student\StoreStudentRequest;
 use App\Http\Requests\Student\UpdateStudentRequest;
 use App\Models\Classroom;
@@ -10,24 +11,26 @@ use App\Models\Student;
 use App\Services\StudentService;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
-use RealRashid\SweetAlert\Facades\Alert;
 
 class StudentController extends Controller
 {
+    use HandlesAlerts;
+
     public function __construct(
         private StudentService $studentService
     ) {}
 
+    /**
+     * Display a listing of students.
+     */
     public function index(Request $request)
     {
         $query = Student::with(['user', 'classroom']);
 
-        // Filter by classroom
         if ($request->filled('classroom_id')) {
             $query->where('classroom_id', $request->classroom_id);
         }
 
-        // Search by NISN
         if ($request->filled('nisn')) {
             $query->where('nisn', 'like', '%' . $request->nisn . '%');
         }
@@ -55,12 +58,11 @@ class StudentController extends Controller
     {
         try {
             $student = $this->studentService->create($request->validated());
-
-            Alert::success('Berhasil', "Siswa {$student->user->name} berhasil ditambahkan.");
+            $this->alertSuccess("Siswa {$student->user->name} berhasil ditambahkan.");
 
             return redirect()->route('dashboard.students.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back()->withInput();
         }
@@ -74,9 +76,7 @@ class StudentController extends Controller
         $student->load([
             'user',
             'classroom',
-            'attendances' => function ($q) {
-                $q->latest('date')->limit(30);
-            },
+            'attendances' => fn($q) => $q->latest('date')->limit(30),
         ]);
 
         return view('users.students.show', compact('student'));
@@ -100,12 +100,11 @@ class StudentController extends Controller
     {
         try {
             $student = $this->studentService->update($student, $request->validated());
-
-            Alert::success('Berhasil', "Data siswa {$student->user->name} berhasil diperbarui.");
+            $this->alertSuccess("Data siswa {$student->user->name} berhasil diperbarui.");
 
             return redirect()->route('dashboard.students.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back()->withInput();
         }
@@ -119,12 +118,11 @@ class StudentController extends Controller
         try {
             $name = $student->user->name;
             $this->studentService->delete($student);
-
-            Alert::success('Berhasil', "Siswa {$name} berhasil dihapus.");
+            $this->alertSuccess("Siswa {$name} berhasil dihapus.");
 
             return redirect()->route('dashboard.students.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back();
         }
@@ -136,14 +134,13 @@ class StudentController extends Controller
     public function resetPassword(Student $student)
     {
         try {
-            $newPassword = 'password'; // Default password
+            $newPassword = 'password';
             $this->studentService->resetPassword($student, $newPassword);
-
-            Alert::success('Berhasil', "Password siswa {$student->user->name} berhasil direset ke: {$newPassword}");
+            $this->alertSuccess("Password siswa {$student->user->name} berhasil direset ke: {$newPassword}");
 
             return back();
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back();
         }
@@ -163,11 +160,11 @@ class StudentController extends Controller
                 $status = 'diaktifkan';
             }
 
-            Alert::success('Berhasil', "Akun siswa {$student->user->name} berhasil {$status}.");
+            $this->alertSuccess("Akun siswa {$student->user->name} berhasil {$status}.");
 
             return back();
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back();
         }
@@ -180,12 +177,11 @@ class StudentController extends Controller
     {
         try {
             $this->studentService->unregisterDevice($student);
-
-            Alert::success('Berhasil', "Perangkat siswa {$student->user->name} berhasil dihapus.");
+            $this->alertSuccess("Perangkat siswa {$student->user->name} berhasil dihapus.");
 
             return back();
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back();
         }

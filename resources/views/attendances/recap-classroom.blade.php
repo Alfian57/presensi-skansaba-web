@@ -31,7 +31,7 @@
                             <td>{{ $classroom->students->count() }} siswa</td>
 
                             <td>
-                                <a href="{{ route('dashboard.attendances.by-classroom', $classroom->id) }}"
+                                <a href="{{ route('dashboard.attendances.by-classroom', $classroom) }}"
                                     class="btn btn-primary btn-sm my-2 btn-action">
                                     <img src="/img/eye.png" alt="Show" class="icon">
                                 </a>

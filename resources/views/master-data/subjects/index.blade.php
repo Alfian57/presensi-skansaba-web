@@ -3,11 +3,11 @@
 @section('content')
     @include('components.breadcrumb')
 
-    <h2 class="text-center mt-3">Mata Pelajaran</h2>
-
-    <div class="text-end mb-3">
-        <a href="{{ route('dashboard.subjects.create') }}" class="btn btn-success btn-sm">+ Tambah Mata Pelajaran</a>
-    </div>
+    <x-ui.page-header 
+        title="Mata Pelajaran" 
+        :createRoute="route('dashboard.subjects.create')" 
+        createLabel="+ Tambah Mata Pelajaran"
+    />
 
     @if ($subjects->isEmpty())
         @include('components.empty-data')
@@ -29,22 +29,12 @@
                             <td>{{ $subject->code }}</td>
                             <td>{{ $subject->name }}</td>
                             <td>
-                                <a href="{{ route('dashboard.subjects.show', $subject->slug) }}"
-                                    class="btn btn-info btn-sm my-2 btn-action">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="{{ route('dashboard.subjects.edit', $subject->slug) }}"
-                                    class="btn btn-warning btn-sm my-2 btn-action">
-                                    <img src="/img/edit.png" alt="Edit" class="icon">
-                                </a>
-                                <form action="{{ route('dashboard.subjects.destroy', $subject->slug) }}" method="POST"
-                                    class="d-inline-block">
-                                    @method('delete')
-                                    @csrf
-                                    <button type="submit" class="btn btn-danger btn-sm my-2 btn-action btn-delete">
-                                        <img src="/img/delete.png" alt="Delete" class="icon">
-                                    </button>
-                                </form>
+                                <x-tables.actions 
+                                    :showRoute="route('dashboard.subjects.show', $subject)"
+                                    :editRoute="route('dashboard.subjects.edit', $subject)"
+                                    :deleteRoute="route('dashboard.subjects.destroy', $subject)"
+                                    deleteConfirm="Apakah Anda yakin ingin menghapus mata pelajaran ini?"
+                                />
                             </td>
                         </tr>
                     @endforeach

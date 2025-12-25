@@ -43,12 +43,13 @@ class PublicAttendanceController extends Controller
 
         $students = $classroom->students()
             ->with([
+                'user',
                 'attendances' => function ($query) use ($today) {
                     $query->whereDate('date', $today);
                 },
             ])
-            ->orderBy('name')
-            ->get();
+            ->get()
+            ->sortBy(fn($student) => $student->user->name ?? '');
 
         return view('public.attendance.classroom', compact('title', 'classroom', 'students', 'today'));
     }

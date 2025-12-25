@@ -28,7 +28,7 @@ class StoreTeacherRequest extends FormRequest
             'email' => ['required', 'email', 'unique:users,email'],
             'username' => ['nullable', 'string', 'unique:users,username'],
             'password' => ['required', 'string', 'min:6'],
-            'employee_number' => ['required', 'string', 'unique:teachers,employee_number'],
+            'nip' => ['required', 'string', 'unique:teachers,nip'],
             'date_of_birth' => ['nullable', 'date'],
             'gender' => ['required', 'in:male,female'],
             'phone' => ['nullable', 'string', 'max:15'],
@@ -46,8 +46,8 @@ class StoreTeacherRequest extends FormRequest
             'username.unique' => 'Username sudah terdaftar.',
             'password.required' => 'Password wajib diisi.',
             'password.min' => 'Password minimal 6 karakter.',
-            'employee_number.required' => 'NIP/NIK wajib diisi.',
-            'employee_number.unique' => 'NIP/NIK sudah terdaftar.',
+            'nip.required' => 'NIP/NIK wajib diisi.',
+            'nip.unique' => 'NIP/NIK sudah terdaftar.',
             'gender.required' => 'Jenis kelamin wajib dipilih.',
         ];
     }

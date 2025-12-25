@@ -26,7 +26,7 @@ class TeacherService
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
-                'username' => $data['username'] ?? $data['employee_number'],
+                'username' => $data['username'] ?? $data['nip'],
                 'password' => Hash::make($data['password'] ?? 'password'),
                 'profile_picture' => $profilePicturePath,
                 'is_active' => $data['is_active'] ?? true,
@@ -38,7 +38,7 @@ class TeacherService
             // Create teacher record
             $teacher = Teacher::create([
                 'user_id' => $user->id,
-                'employee_number' => $data['employee_number'],
+                'nip' => $data['nip'],
                 'date_of_birth' => $data['date_of_birth'] ?? null,
                 'gender' => $data['gender'],
                 'phone' => $data['phone'] ?? null,
@@ -99,7 +99,7 @@ class TeacherService
 
             // Update teacher data
             $teacher->update([
-                'employee_number' => $data['employee_number'] ?? $teacher->employee_number,
+                'nip' => $data['nip'] ?? $teacher->nip,
                 'date_of_birth' => $data['date_of_birth'] ?? $teacher->date_of_birth,
                 'gender' => $data['gender'],
                 'phone' => $data['phone'] ?? $teacher->phone,
@@ -139,7 +139,7 @@ class TeacherService
     public function search(string $query)
     {
         return Teacher::with(['user'])
-            ->where('employee_number', 'like', "%{$query}%")
+            ->where('nip', 'like', "%{$query}%")
             ->orWhereHas('user', function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
                     ->orWhere('email', 'like', "%{$query}%");

@@ -11,6 +11,7 @@ return new class() extends Migration {
             $table->id();
             $table->foreignId('teacher_id')->constrained()->onDelete('cascade');
             $table->foreignId('classroom_id')->constrained()->onDelete('cascade');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
 
             $table->unique(['classroom_id'], 'homeroom_classroom_year_unique');

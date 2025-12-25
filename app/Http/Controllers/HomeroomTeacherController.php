@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\HandlesAlerts;
 use App\Http\Requests\HomeroomTeacher\StoreHomeroomTeacherRequest;
 use App\Http\Requests\HomeroomTeacher\UpdateHomeroomTeacherRequest;
 use App\Models\Classroom;
 use App\Models\HomeroomTeacher;
 use App\Models\Teacher;
-use RealRashid\SweetAlert\Facades\Alert;
 
 class HomeroomTeacherController extends Controller
 {
+    use HandlesAlerts;
+
     /**
      * Display a listing of homeroom teachers.
      */
     public function index()
     {
-        $homeroomTeachers = HomeroomTeacher::with(['teacher.user', 'classroom'])
-            ->latest()
-            ->get();
+        $homeroomTeachers = HomeroomTeacher::with(['teacher.user', 'classroom'])->latest()->get();
 
         return view('master-data.homeroom-teachers.index', compact('homeroomTeachers'));
     }
@@ -28,13 +28,9 @@ class HomeroomTeacherController extends Controller
      */
     public function create()
     {
-        // Get teachers that are not yet homeroom teachers
         $assignedTeacherIds = HomeroomTeacher::pluck('teacher_id');
-        $teachers = Teacher::whereNotIn('id', $assignedTeacherIds)
-            ->with('user')
-            ->get();
+        $teachers = Teacher::whereNotIn('id', $assignedTeacherIds)->with('user')->get();
 
-        // Get classrooms that don't have homeroom teacher yet
         $assignedClassroomIds = HomeroomTeacher::pluck('classroom_id');
         $classrooms = Classroom::whereNotIn('id', $assignedClassroomIds)
             ->orderBy('grade_level')
@@ -52,12 +48,11 @@ class HomeroomTeacherController extends Controller
     {
         try {
             HomeroomTeacher::create($request->validated());
-
-            Alert::success('Berhasil', 'Wali kelas berhasil ditambahkan.');
+            $this->alertSuccess('Wali kelas berhasil ditambahkan.');
 
             return redirect()->route('dashboard.homeroom-teachers.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back()->withInput();
         }
@@ -70,16 +65,10 @@ class HomeroomTeacherController extends Controller
     {
         $homeroomTeacher->load(['teacher.user', 'classroom']);
 
-        // Get available teachers (excluding current)
-        $assignedTeacherIds = HomeroomTeacher::where('id', '!=', $homeroomTeacher->id)
-            ->pluck('teacher_id');
-        $teachers = Teacher::whereNotIn('id', $assignedTeacherIds)
-            ->with('user')
-            ->get();
+        $assignedTeacherIds = HomeroomTeacher::where('id', '!=', $homeroomTeacher->id)->pluck('teacher_id');
+        $teachers = Teacher::whereNotIn('id', $assignedTeacherIds)->with('user')->get();
 
-        // Get available classrooms (excluding current)
-        $assignedClassroomIds = HomeroomTeacher::where('id', '!=', $homeroomTeacher->id)
-            ->pluck('classroom_id');
+        $assignedClassroomIds = HomeroomTeacher::where('id', '!=', $homeroomTeacher->id)->pluck('classroom_id');
         $classrooms = Classroom::whereNotIn('id', $assignedClassroomIds)
             ->orderBy('grade_level')
             ->orderBy('major')
@@ -96,12 +85,11 @@ class HomeroomTeacherController extends Controller
     {
         try {
             $homeroomTeacher->update($request->validated());
-
-            Alert::success('Berhasil', 'Wali kelas berhasil diperbarui.');
+            $this->alertSuccess('Wali kelas berhasil diperbarui.');
 
             return redirect()->route('dashboard.homeroom-teachers.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back()->withInput();
         }
@@ -115,14 +103,12 @@ class HomeroomTeacherController extends Controller
         try {
             $teacherName = $homeroomTeacher->teacher->user->name;
             $classroomName = $homeroomTeacher->classroom->name;
-
             $homeroomTeacher->delete();
-
-            Alert::success('Berhasil', "Wali kelas {$teacherName} untuk kelas {$classroomName} berhasil dihapus.");
+            $this->alertSuccess("Wali kelas {$teacherName} untuk kelas {$classroomName} berhasil dihapus.");
 
             return redirect()->route('dashboard.homeroom-teachers.index');
         } catch (\Exception $e) {
-            Alert::error('Gagal', 'Terjadi kesalahan: ' . $e->getMessage());
+            $this->alertException($e);
 
             return back();
         }
