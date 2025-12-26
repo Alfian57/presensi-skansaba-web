@@ -24,8 +24,9 @@ class StudentLoginRequest extends FormRequest
     public function rules()
     {
         return [
-            'identifier' => ['required', 'string'], // NISN or NIS
+            'login' => ['required', 'string'],
             'password' => ['required', 'string'],
+            'device_name' => ['required', 'string'],
             'device_id' => ['required', 'string'],
         ];
     }
@@ -38,9 +39,10 @@ class StudentLoginRequest extends FormRequest
     public function attributes()
     {
         return [
-            'identifier' => 'NISN atau NIS',
-            'password' => 'password',
-            'device_id' => 'ID perangkat',
+            'login' => 'Username atau Email',
+            'password' => 'Password',
+            'device_name' => 'Nama Perangkat',
+            'device_id' => 'ID Perangkat',
         ];
     }
 
@@ -52,9 +54,10 @@ class StudentLoginRequest extends FormRequest
     public function messages()
     {
         return [
-            'identifier.required' => 'NISN atau NIS wajib diisi.',
+            'login.required' => 'Username atau Email wajib diisi.',
             'password.required' => 'Password wajib diisi.',
-            'device_id.required' => 'Device ID wajib diisi.',
+            'device_name.required' => 'Nama perangkat wajib diisi.',
+            'device_id.required' => 'Dilarang memodifikasi aplikasi ini.',
         ];
     }
 }
