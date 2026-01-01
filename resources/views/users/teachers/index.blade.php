@@ -8,44 +8,36 @@
         :createRoute="route('dashboard.teachers.create')" 
         createLabel="+ Tambah Guru"
         :exportRoute="route('dashboard.teachers.export')"
-        exportLabel="Download Data (Excel)"
-    >
-        <a class="btn btn-info btn-sm text-white" data-toggle="modal" data-target="#filterModal">
-            <i class="fa fa-search"></i> Filter
-        </a>
-    </x-ui.page-header>
+        exportLabel="Export Excel"
+    />
 
-    {{-- Filter Modal --}}
-    <x-ui.modal id="filterModal" title="Filter">
-        <form action="{{ route('dashboard.teachers.index') }}" method="GET">
-            <x-forms.input name="search" label="Cari NIP/Nama" placeholder="NIP atau Nama Guru" :value="request('search')" />
-            <div class="text-end">
-                <button type="submit" class="btn btn-primary btn-sm">
-                    <img src="/img/search.png" class="icon"> Cari
-                </button>
-            </div>
-        </form>
-    </x-ui.modal>
+    {{-- Inline Filter --}}
+    <x-tables.filter-inline :action="route('dashboard.teachers.index')">
+        <div class="col-md-4">
+            <label class="form-label small mb-1">Cari NIP/Nama</label>
+            <input type="text" class="form-control form-control-sm" name="search" value="{{ request('search') }}" placeholder="NIP atau Nama Guru">
+        </div>
+    </x-tables.filter-inline>
 
     @if ($teachers->isEmpty())
         @include('components.empty-data')
     @else
-        <div class="table-responsive mt-3">
-            <table class="table table-striped datatable-without-search">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
                 <thead class="table-primary">
                     <tr>
                         <th>#</th>
                         <th>NIP</th>
                         <th>Nama</th>
                         <th>Status</th>
-                        <th>Image</th>
+                        <th>Foto</th>
                         <th class="action">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($teachers as $teacher)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $loop->iteration + ($teachers->currentPage() - 1) * $teachers->perPage() }}</td>
                             <td>{{ $teacher->nip }}</td>
                             <td>{{ $teacher->user->name ?? $teacher->name }}</td>
                             <td>
@@ -61,7 +53,7 @@
                                         </a>
                                     </div>
                                 @else
-                                    <span class="text-danger">Tidak Ada Foto</span>
+                                    <span class="text-muted small">-</span>
                                 @endif
                             </td>
                             <td>
@@ -78,6 +70,8 @@
             </table>
         </div>
         
-        {{ $teachers->links() }}
+        <div class="d-flex justify-content-center mt-4">
+            {{ $teachers->withQueryString()->links() }}
+        </div>
     @endif
 @endsection

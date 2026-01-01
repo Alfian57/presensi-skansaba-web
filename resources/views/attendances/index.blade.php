@@ -3,130 +3,98 @@
 @section('content')
     @include('components.breadcrumb')
 
-    <h2 class="text-center mt-3">Presensi</h2>
+    <x-ui.page-header title="Presensi" />
 
-    <!-- Modal -->
-    <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title">
-                        Filter
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="{{ route('dashboard.attendances.index') }}" method="GET" class="d-flex">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="nisn" class="form-label">NISN</label>
-                            <input class="form-control form-control-sm" name="nisn" type="text" placeholder="NISN Siswa"
-                                value="@if (request('nisn')) {{ request('nisn') }} @endif">
-                        </div>
-                        <div class="mb-3">
-                            <label for="classroom_id" class="form-label">Kelas</label>
-                            <select class="form-select form-select-sm" id="classroom_id" name="classroom_id"
-                                aria-label=".form-select-sm example">
-                                <option value="" @if (!request('classroom_id')) selected @endif>Semua Kelas
-                                </option>
-                                @foreach ($classrooms as $classroom)
-                                    @if (request('classroom_id') == $classroom->id)
-                                        <option value="{{ $classroom->id }}" selected>{{ $classroom->name }}</option>
-                                    @else
-                                        <option value="{{ $classroom->id }}">{{ $classroom->name }}</option>
-                                    @endif
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="date" class="form-label">Tanggal Presensi</label>
-                            @if (request('date'))
-                                <input class="form-control form-control-sm" name="date" type="date" placeholder="Hari"
-                                    value="{{ request('date') }}">
-                            @else
-                                <input class="form-control form-control-sm" name="date" type="date" placeholder="Hari"
-                                    value="{{ date('Y-m-d') }}">
-                            @endif
-                        </div>
-                        <div class="mb-3">
-                            <label for="desc" class="form-label">Keterangan</label>
-                            <select class="form-select form-select-sm" id="desc" name="desc"
-                                aria-label=".form-select-sm example">
-                                <option value="" @if (!request('desc')) selected @endif>Semua</option>
-                                <option value="masuk" @if (request('desc') == 'masuk') selected @endif>Masuk</option>
-                                <option value="terlambat" @if (request('desc') == 'terlambat') selected @endif>Terlambat
-                                </option>
-                                <option value="ijin" @if (request('desc') == 'ijin') selected @endif>Ijin</option>
-                                <option value="sakit" @if (request('desc') == 'sakit') selected @endif>Sakit</option>
-                                <option value="alpha" @if (request('desc') == 'alpha') selected @endif>Alpha</option>
-                            </select>
-                        </div>
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-primary btn-sm"><img src="/img/search.png"
-                                    class="icon"></button>
-                        </div>
-
-                    </div>
-                </form>
-            </div>
+    {{-- Inline Filter --}}
+    <x-tables.filter-inline :action="route('dashboard.attendances.index')">
+        <div class="col-md-2">
+            <label class="form-label small mb-1">NISN/Nama</label>
+            <input type="text" class="form-control form-control-sm" name="search" value="{{ request('search') }}" placeholder="Cari...">
         </div>
-    </div>
-
-    <div class="d-flex">
-        <a class="btn btn-info btn-sm ml-auto text-white" data-toggle="modal" data-target="#filterModal">
-            <i class="fa fa-search" aria-hidden="true"></i>
-            Filter
-        </a>
-    </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1">Kelas</label>
+            <select class="form-select form-select-sm" name="classroom_id">
+                <option value="">Semua</option>
+                @foreach($classrooms as $classroom)
+                    <option value="{{ $classroom->id }}" @selected(request('classroom_id') == $classroom->id)>{{ $classroom->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1">Status</label>
+            <select class="form-select form-select-sm" name="status">
+                <option value="">Semua</option>
+                @foreach($statuses as $status)
+                    <option value="{{ $status->value }}" @selected(request('status') == $status->value)>{{ ucfirst($status->value) }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1">Dari Tanggal</label>
+            <input type="date" class="form-control form-control-sm" name="start_date" value="{{ request('start_date') }}">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1">Sampai Tanggal</label>
+            <input type="date" class="form-control form-control-sm" name="end_date" value="{{ request('end_date') }}">
+        </div>
+    </x-tables.filter-inline>
 
     {{-- Table --}}
     @if ($attendances->isEmpty())
         @include('components.empty-data')
     @else
-        <div class="table-responsive mt-3">
-            <table class="table table-striped datatable-without-search">
-                <thead class="table-primary table-striped">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-primary">
                     <tr>
                         <th>#</th>
                         <th>NISN</th>
                         <th>Nama</th>
                         <th>Kelas</th>
-                        <th>Tanggal Presensi</th>
-                        <th>Keterangan</th>
-                        <th class="attendance-action">Aksi</th>
+                        <th>Tanggal</th>
+                        <th>Status</th>
+                        <th>Jam Masuk</th>
+                        <th>Jam Keluar</th>
+                        <th class="action">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($attendances as $attendance)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $loop->iteration + ($attendances->currentPage() - 1) * $attendances->perPage() }}</td>
                             <td>{{ $attendance->student->nisn }}</td>
-                            <td>{{ $attendance->student->name }}</td>
+                            <td>{{ $attendance->student->user->name ?? '-' }}</td>
                             <td>{{ $attendance->student->classroom->name ?? '-' }}</td>
-                            <td>{{ $attendance->present_date }}</td>
-
-                            @if ($attendance->desc === 'ijin' || $attendance->desc === 'sakit')
-                                <td class="text-warning">{{ ucwords($attendance->desc) }}</td>
-                            @elseif($attendance->desc === 'masuk')
-                                <td class="text-primary">{{ ucwords($attendance->desc) }}</td>
-                            @elseif($attendance->desc === 'alpha')
-                                <td class="text-danger">{{ ucwords($attendance->desc) }}</td>
-                            @else
-                                <td class="text-dark">{{ ucwords($attendance->desc) }}</td>
-                            @endif
-
+                            <td>{{ $attendance->date?->format('d/m/Y') ?? '-' }}</td>
                             <td>
-                                <a href="{{ route('dashboard.attendances.edit', $attendance->id) }}"
-                                    class="btn btn-warning btn-sm my-2 btn-action">
-                                    <img src="/img/edit.png" alt="Edit" class="icon">
+                                @php
+                                    $statusValue = $attendance->status->value ?? $attendance->status;
+                                    $statusConfig = [
+                                        'present' => ['label' => 'Hadir', 'class' => 'success'],
+                                        'late' => ['label' => 'Terlambat', 'class' => 'warning'],
+                                        'sick' => ['label' => 'Sakit', 'class' => 'info'],
+                                        'permission' => ['label' => 'Izin', 'class' => 'primary'],
+                                        'absent' => ['label' => 'Alpha', 'class' => 'danger'],
+                                    ];
+                                    $config = $statusConfig[$statusValue] ?? ['label' => ucfirst($statusValue), 'class' => 'secondary'];
+                                @endphp
+                                <span class="badge bg-{{ $config['class'] }}">{{ $config['label'] }}</span>
+                            </td>
+                            <td>{{ $attendance->check_in_time ? \Carbon\Carbon::parse($attendance->check_in_time)->format('H:i') : '-' }}</td>
+                            <td>{{ $attendance->check_out_time ? \Carbon\Carbon::parse($attendance->check_out_time)->format('H:i') : '-' }}</td>
+                            <td>
+                                <a href="{{ route('dashboard.attendances.edit', $attendance->id) }}" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i>
                                 </a>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
+        </div>
+        
+        <div class="d-flex justify-content-center mt-4">
+            {{ $attendances->withQueryString()->links() }}
         </div>
     @endif
 @endsection

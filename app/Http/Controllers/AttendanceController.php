@@ -51,7 +51,7 @@ class AttendanceController extends Controller
             });
         }
 
-        $attendances = $query->latest('date')->latest('check_in_time')->get();
+        $attendances = $query->latest('date')->latest('check_in_time')->paginate(20);
 
         $classrooms = Classroom::orderBy('grade_level')
             ->orderBy('major')

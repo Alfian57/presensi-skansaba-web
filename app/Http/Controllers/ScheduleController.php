@@ -21,7 +21,8 @@ class ScheduleController extends Controller
 
     public function __construct(
         private ScheduleService $scheduleService
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of schedules.
@@ -177,10 +178,11 @@ class ScheduleController extends Controller
             ->orderBy('day')
             ->orderBy('start_time')
             ->get()
-            ->groupBy('day');
+            ->groupBy(fn($schedule) => $schedule->day->value);
 
+        $isNotEmpty = $schedules->isNotEmpty();
         $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
-        return view('master-data.schedules.my-schedule', compact('schedules', 'days'));
+        return view('master-data.schedules.my-schedule', compact('schedules', 'days', 'isNotEmpty'));
     }
 }

@@ -46,7 +46,7 @@ class ClassAbsenceController extends Controller
      */
     public function create()
     {
-        $students = Student::with(['user', 'classroom'])->orderBy('name')->get();
+        $students = Student::with(['user', 'classroom'])->get()->sortBy(fn($s) => $s->user->name ?? '');
         $schedules = Schedule::with(['subject', 'teacher.user', 'classroom'])->get();
 
         return view('class-absences.create', compact('students', 'schedules'));
@@ -84,7 +84,7 @@ class ClassAbsenceController extends Controller
     public function edit(ClassAbsence $classAbsence)
     {
         $classAbsence->load(['student.user', 'schedule.subject']);
-        $students = Student::with(['user', 'classroom'])->orderBy('name')->get();
+        $students = Student::with(['user', 'classroom'])->get()->sortBy(fn($s) => $s->user->name ?? '');
         $schedules = Schedule::with(['subject', 'teacher.user', 'classroom'])->get();
 
         return view('class-absences.edit', compact('classAbsence', 'students', 'schedules'));

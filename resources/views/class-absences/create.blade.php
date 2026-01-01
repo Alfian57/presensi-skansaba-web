@@ -3,64 +3,88 @@
 @section('content')
     @include('components.breadcrumb')
 
-    <h2 class="text-center mt-3">Tambah Data Siswa Bolos</h2>
-    <form action="{{ route('dashboard.class-absences.store') }}" method="POST">
-        @csrf
-        <div class="mb-3">
-            <label for="student_id" class="form-label @error('student_id') is-invalid @enderror">Nama Siswa</label>
-            <select class="form-select" name="student_id" id="student_id" required>
-                @foreach ($students as $student)
-                    <option value="{{ $student->id }}">{{ $student->name }}</option>
-                @endforeach
-            </select>
-            @if ($students->isEmpty())
-                <p class="text-danger">Tidak Ada Siswa (Hadir) Yang Tersedia</p>
-            @endif
-            @error('student_id')
-                <div class="invalid-feedback">
-                    {{ $message }}
-                </div>
-            @enderror
-        </div>
-        <div class="mb-3">
-            <label for="subject_id" class="form-label">Mata Pelajaran</label>
-            <select class="form-select" name="subject_id" id="subject_id" required>
-            </select>
-            <div id="select_first" class="text-danger mt-1">
-                Pilih Siswa Dahulu
-            </div>
-        </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <x-ui.card title="Tambah Data Siswa Bolos" icon="fas fa-user-times">
+                <form action="{{ route('dashboard.class-absences.store') }}" method="POST">
+                    @csrf
 
-        <div class="text-end">
-            <a href="{{ route('dashboard.class-absences.index') }}" class="btn btn-danger btn-sm mt-3">Kembali</a>
-            <button type="submit" class="btn btn-primary btn-sm mt-3">Submit</button>
-        </div>
-    </form>
+                    <div class="mb-3">
+                        <label for="student_id" class="form-label">Nama Siswa <span class="text-danger">*</span></label>
+                        <select class="form-select @error('student_id') is-invalid @enderror" name="student_id" id="student_id" required>
+                            <option value="">-- Pilih Siswa --</option>
+                            @foreach ($students as $student)
+                                <option value="{{ $student->id }}" @selected(old('student_id') == $student->id)>
+                                    {{ $student->user->name ?? 'N/A' }} - {{ $student->classroom->name ?? '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @if ($students->isEmpty())
+                            <small class="text-danger">Tidak ada siswa yang tersedia</small>
+                        @endif
+                        @error('student_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
+                    <div class="mb-3">
+                        <label for="schedule_id" class="form-label">Jadwal Pelajaran <span class="text-danger">*</span></label>
+                        <select class="form-select @error('schedule_id') is-invalid @enderror" name="schedule_id" id="schedule_id" required>
+                            <option value="">-- Pilih terlebih dahulu siswa --</option>
+                        </select>
+                        <small id="schedule_hint" class="text-muted">Pilih siswa terlebih dahulu untuk melihat jadwal</small>
+                        @error('schedule_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <x-forms.textarea name="reason" label="Alasan (Opsional)" placeholder="Masukkan alasan jika ada" />
+
+                    <x-forms.actions :backRoute="route('dashboard.class-absences.index')" submitLabel="Simpan Data" />
+                </form>
+            </x-ui.card>
+        </div>
+    </div>
+
+    @push('scripts')
     <script>
-        $(document).ready(function () {
-            $("#student_id").click(function () {
-                let selectFirst = "";
+        $(document).ready(function() {
+            $('#student_id').change(function() {
+                var studentId = $(this).val();
+                var scheduleSelect = $('#schedule_id');
+                var hint = $('#schedule_hint');
+                
+                if (!studentId) {
+                    scheduleSelect.html('<option value="">-- Pilih terlebih dahulu siswa --</option>');
+                    hint.text('Pilih siswa terlebih dahulu untuk melihat jadwal').removeClass('text-danger').addClass('text-muted');
+                    return;
+                }
+                
+                hint.text('Memuat jadwal...').removeClass('text-danger').addClass('text-muted');
+                
                 $.ajax({
                     type: "GET",
-                    url: "/api/get-schedules/" + this.value,
-                    cache: "false",
-                    success: function (response) {
+                    url: "/api/get-schedules/" + studentId,
+                    success: function(response) {
+                        scheduleSelect.html('<option value="">-- Pilih Jadwal --</option>');
+                        
                         if (response.length == 0) {
-                            selectFirst = "Data Kosong";
+                            hint.text('Tidak ada jadwal untuk siswa ini hari ini').addClass('text-danger').removeClass('text-muted');
+                        } else {
+                            hint.text('').removeClass('text-danger text-muted');
+                            $.each(response, function(index, value) {
+                                scheduleSelect.append(
+                                    '<option value="' + value.id + '">' + value.name + ' | ' + value.time_start + ' - ' + value.time_finish + '</option>'
+                                );
+                            });
                         }
-
-                        $('#subject_id').html('');
-                        $.each(response, function (index, value) {
-                            $('#subject_id').append(
-                                `<option value='${value.id}'>${value.name} | ${value.time_start} - ${value.time_finish}</option>`
-                            );
-                        });
-
-                        $('#select_first').html(selectFirst);
+                    },
+                    error: function() {
+                        hint.text('Gagal memuat jadwal').addClass('text-danger').removeClass('text-muted');
                     }
                 });
             });
         });
     </script>
+    @endpush
 @endsection

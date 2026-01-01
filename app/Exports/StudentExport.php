@@ -45,7 +45,7 @@ class StudentExport implements FromCollection, WithColumnWidths, WithHeadings, W
             $student->nisn ?? '-',
             $student->nis ?? '-',
             $student->user->name ?? '-',
-            $student->gender->label(),
+            $student->gender?->label() ?? '-',
             $student->classroom->name ?? '-',
             $student->date_of_birth?->format('d/m/Y') ?? '-',
             $student->entry_year ?? '-',

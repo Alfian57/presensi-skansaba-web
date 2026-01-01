@@ -9,7 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Auth\StudentLoginRequest;
-use Illuminate\Validation\ValidationException;
+
 
 class AuthController extends Controller
 {
@@ -32,7 +32,16 @@ class AuthController extends Controller
      *         )
      *     ),
      *
-     *     @OA\Response(response=200, description="Login successful"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login successful",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Login berhasil."),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=401, description="Invalid credentials"),
      *     @OA\Response(response=403, description="Forbidden"),
      *     @OA\Response(response=422, description="Validation error")
      * )
@@ -45,9 +54,10 @@ class AuthController extends Controller
             ->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'login' => ['Kredensial yang diberikan salah.'],
-            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Username atau password salah.',
+            ], 401);
         }
 
         $student = Student::where('user_id', $user->id)->first();
@@ -99,7 +109,14 @@ class AuthController extends Controller
      *     summary="Logout and revoke token",
      *     security={{"bearerAuth":{}}},
      *
-     *     @OA\Response(response=200, description="Logout successful"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Logout successful",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Logout berhasil.")
+     *         )
+     *     ),
      *     @OA\Response(response=401, description="Unauthenticated")
      * )
      */
@@ -120,7 +137,11 @@ class AuthController extends Controller
      *     summary="Get authenticated user profile",
      *     security={{"bearerAuth":{}}},
      *
-     *     @OA\Response(response=200, description="Success"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success",
+     *         @OA\JsonContent(ref="#/components/schemas/Student")
+     *     ),
      *     @OA\Response(response=401, description="Unauthenticated"),
      *     @OA\Response(response=404, description="Student data not found")
      * )

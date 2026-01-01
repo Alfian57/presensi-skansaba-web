@@ -3,58 +3,32 @@
 @section('content')
     @include('components.breadcrumb')
 
-    <h2 class="text-center mt-3">Akun Aktif</h2>
+    <x-ui.page-header title="Akun Aktif (Device Terdaftar)" />
 
-    <!-- Modal -->
-    <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title">
-                        Filter
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="{{ route('dashboard.devices.index') }}" method="GET" class="d-flex">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="nisn" class="form-label">NISN</label>
-                            <input class="form-control form-control-sm" name="nisn" type="text" placeholder="NISN Siswa"
-                                value="@if (request('nisn')) {{ request('nisn') }} @endif">
-                        </div>
-                        {{-- Grade filter removed - not implemented in controller --}}
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-primary btn-sm"><img src="/img/search.png"
-                                    class="icon"></button>
-                        </div>
-
-                    </div>
-                </form>
-            </div>
+    {{-- Inline Filter --}}
+    <x-tables.filter-inline :action="route('dashboard.devices.index')">
+        <div class="col-md-4">
+            <label class="form-label small mb-1">NISN / Nama</label>
+            <input type="text" class="form-control form-control-sm" name="search" value="{{ request('search') }}" placeholder="NISN atau Nama Siswa">
         </div>
-    </div>
-
-    <div class="text-end mb-3">
-        <a class="btn btn-info btn-sm ml-auto text-white" data-toggle="modal" data-target="#filterModal">
-            <i class="fa fa-search" aria-hidden="true"></i>
-            Filter
-        </a>
-    </div>
+    </x-tables.filter-inline>
 
     @if ($students->isEmpty())
-        @include('components.empty-data')
+        <div class="text-center py-5">
+            <i class="fas fa-mobile-alt fa-4x text-muted mb-3"></i>
+            <h5 class="text-muted">Belum Ada Perangkat Terdaftar</h5>
+            <p class="text-muted">Tidak ada siswa dengan perangkat aktif saat ini.</p>
+        </div>
     @else
-        <div class="table-responsive mt-3">
-            <table class="table table-striped datatable-without-search">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
                 <thead class="table-primary">
                     <tr>
                         <th>#</th>
                         <th>NISN</th>
                         <th>Nama</th>
                         <th>Kelas</th>
+                        <th>Terdaftar Pada</th>
                         <th class="action">Aksi</th>
                     </tr>
                 </thead>
@@ -63,16 +37,21 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $student->nisn }}</td>
-                            <td>{{ $student->name }}</td>
+                            <td>{{ $student->user->name ?? '-' }}</td>
                             <td>{{ $student->classroom->name ?? '-' }}</td>
-
                             <td>
-                                <form action="{{ route('dashboard.active-devices.destroy', $student->nisn) }}" method="POST"
-                                    class="d-inline-block">
+                                @if($student->device_registered_at)
+                                    {{ \Carbon\Carbon::parse($student->device_registered_at)->format('d/m/Y H:i') }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td>
+                                <form action="{{ route('dashboard.devices.unregister', $student) }}" method="POST" class="d-inline-block">
                                     @method('delete')
                                     @csrf
-                                    <button type="submit" class="btn btn-danger btn-sm my-2 btn-action btn-delete">
-                                        <img src="/img/delete.png" alt="Delete" class="icon">
+                                    <button type="submit" class="btn btn-danger btn-sm btn-delete" onclick="return confirm('Apakah Anda yakin ingin menghapus device ini?')">
+                                        <i class="fas fa-trash"></i> Hapus
                                     </button>
                                 </form>
                             </td>

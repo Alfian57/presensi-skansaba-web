@@ -11,7 +11,9 @@
 @php
     $id = $name;
     $hasError = $errors->has($name);
-    $selected = old($name, $value);
+    // Handle enum values by converting to string
+    $rawValue = old($name, $value);
+    $selected = $rawValue instanceof \BackedEnum ? $rawValue->value : $rawValue;
 @endphp
 
 <div class="mb-3">

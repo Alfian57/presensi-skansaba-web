@@ -8,31 +8,31 @@
         :createRoute="route('dashboard.students.create')" 
         createLabel="+ Tambah Siswa"
         :exportRoute="route('dashboard.students.export')"
-        exportLabel="Download Data (Excel)"
-    >
-        <a class="btn btn-info btn-sm text-white" data-toggle="modal" data-target="#filterModal">
-            <i class="fa fa-search"></i> Filter
-        </a>
-    </x-ui.page-header>
+        exportLabel="Export Excel"
+    />
 
-    {{-- Filter Modal --}}
-    <x-ui.modal id="filterModal" title="Filter">
-        <form action="{{ route('dashboard.students.index') }}" method="GET">
-            <x-forms.input name="nisn" label="NISN" placeholder="NISN Siswa" :value="request('nisn')" />
-            <x-forms.select name="classroom_id" label="Kelas" :options="$classrooms->pluck('name', 'id')" :value="request('classroom_id')" placeholder="Semua Kelas" />
-            <div class="text-end">
-                <button type="submit" class="btn btn-primary btn-sm">
-                    <img src="/img/search.png" class="icon"> Cari
-                </button>
-            </div>
-        </form>
-    </x-ui.modal>
+    {{-- Inline Filter --}}
+    <x-tables.filter-inline :action="route('dashboard.students.index')">
+        <div class="col-md-3">
+            <label class="form-label small mb-1">NISN</label>
+            <input type="text" class="form-control form-control-sm" name="nisn" value="{{ request('nisn') }}" placeholder="NISN Siswa">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small mb-1">Kelas</label>
+            <select class="form-select form-select-sm" name="classroom_id">
+                <option value="">Semua Kelas</option>
+                @foreach($classrooms as $classroom)
+                    <option value="{{ $classroom->id }}" @selected(request('classroom_id') == $classroom->id)>{{ $classroom->name }}</option>
+                @endforeach
+            </select>
+        </div>
+    </x-tables.filter-inline>
 
     @if ($students->isEmpty())
         @include('components.empty-data')
     @else
-        <div class="table-responsive mt-3">
-            <table class="table table-striped datatable-without-search">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
                 <thead class="table-primary">
                     <tr>
                         <th>#</th>
@@ -40,7 +40,7 @@
                         <th>Nama</th>
                         <th>Kelas</th>
                         <th>Status</th>
-                        <th>Image</th>
+                        <th>Foto</th>
                         <th class="action">Aksi</th>
                     </tr>
                 </thead>
@@ -64,7 +64,7 @@
                                         </a>
                                     </div>
                                 @else
-                                    <span class="text-danger">Tidak Ada Foto</span>
+                                    <span class="text-muted small">-</span>
                                 @endif
                             </td>
                             <td>

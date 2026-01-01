@@ -3,18 +3,19 @@
 @section('content')
     @include('components.breadcrumb')
 
-    <x-ui.card title="Tambah Mata Pelajaran" icon="fas fa-book" class="mt-3">
-        <form action="{{ route('dashboard.subjects.store') }}" method="POST">
-            @csrf
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <x-ui.card title="Tambah Mata Pelajaran" icon="fas fa-book">
+                <form action="{{ route('dashboard.subjects.store') }}" method="POST">
+                    @csrf
 
-            <x-forms.input name="code" label="Kode Mata Pelajaran" placeholder="Kode" required />
-            <x-forms.input name="name" label="Nama Mata Pelajaran" placeholder="Mata Pelajaran" required />
-            <x-forms.textarea name="description" label="Deskripsi (Opsional)" placeholder="Deskripsi" />
+                    <x-forms.input name="code" label="Kode Mata Pelajaran" placeholder="Kode unik mata pelajaran" required />
+                    <x-forms.input name="name" label="Nama Mata Pelajaran" placeholder="Nama mata pelajaran" required />
+                    <x-forms.textarea name="description" label="Deskripsi (Opsional)" placeholder="Deskripsi singkat mata pelajaran" />
 
-            <div class="text-end">
-                <a href="{{ route('dashboard.subjects.index') }}" class="btn btn-danger btn-sm">Kembali</a>
-                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
-            </div>
-        </form>
-    </x-ui.card>
+                    <x-forms.actions :backRoute="route('dashboard.subjects.index')" submitLabel="Simpan Data" />
+                </form>
+            </x-ui.card>
+        </div>
+    </div>
 @endsection

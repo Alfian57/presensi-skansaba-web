@@ -23,7 +23,7 @@ class TeacherExport implements FromCollection, WithColumnWidths, WithHeadings, W
     public function collection()
     {
         return Teacher::with(['user', 'schedules.subject', 'activeHomeroom.classroom'])
-            ->orderBy('employee_number')
+            ->orderBy('nip')
             ->get();
     }
 
@@ -33,7 +33,7 @@ class TeacherExport implements FromCollection, WithColumnWidths, WithHeadings, W
         $subjects = $teacher->schedules->pluck('subject.name')->unique()->filter()->implode(', ') ?: 'Belum ada jadwal';
 
         return [
-            "'".($teacher->employee_number ?? '-'), // Prefix with ' to force text format in Excel
+            "'" . ($teacher->nip ?? '-'), // Prefix with ' to force text format in Excel
             $teacher->user->name ?? '-',
             $teacher->user->email ?? '-',
             $teacher->gender?->label() ?? 'Belum diisi',

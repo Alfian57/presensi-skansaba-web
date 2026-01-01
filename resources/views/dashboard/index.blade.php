@@ -173,7 +173,15 @@
                     <h5 class="mb-0"><i class="fas fa-chart-line me-2 text-success"></i>Tren Kehadiran 7 Hari Terakhir</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="weeklyChart" height="100"></canvas>
+                    @if(collect($weeklyTrend)->sum('count') > 0)
+                        <canvas id="weeklyChart" height="100"></canvas>
+                    @else
+                        <div class="d-flex flex-column align-items-center justify-content-center py-5">
+                            <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
+                            <h6 class="text-muted">Belum Ada Data</h6>
+                            <p class="text-muted small text-center">Data kehadiran 7 hari terakhir akan ditampilkan di sini</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -331,6 +339,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Weekly Attendance Chart
+        @if(collect($weeklyTrend)->sum('count') > 0)
         const ctx = document.getElementById('weeklyChart');
         const weeklyData = @json($weeklyTrend);
 
@@ -365,6 +374,7 @@
                 }
             }
         });
+        @endif
     </script>
 
     <style>
